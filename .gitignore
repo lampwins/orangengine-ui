@@ -2,3 +2,9 @@
 *.pyc
 *.ropeproject/
 .DS_Store
+.vscode
+*.pyc
+__pycache__
+api/api.log
+api/api.db
+venv
