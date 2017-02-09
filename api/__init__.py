@@ -36,20 +36,10 @@ from flask_sqlalchemy import SQLAlchemy
 logger = logging.getLogger(__name__)
 
 # Populated from config file
-debug = 0
+debug = 1
 
 # Flask Limits for Safety
 flask_limits = ["1000 per day", "100 per hour", "5 per minute"]
-
-# Initialize Configuration
-config_file = 'api.conf'
-config = configparser.ConfigParser()
-config.read(config_file)
-
-# Check for sane config file
-if 'apisrv' not in config:
-    print "Could not parse config file: {0}".format(config_file)
-    sys.exit(1)
 
 # Logging Configuration, default level INFO
 logger = logging.getLogger('')
@@ -57,16 +47,14 @@ logger.setLevel(logging.INFO)
 lformat = logging.Formatter('%(asctime)s %(name)s:%(levelname)s: %(message)s')
 
 # Debug mode Enabled
-if 'debug' in config['apisrv'] and int(config['apisrv']['debug']) != 0:
-    debug = int(config['apisrv']['debug'])
+if debug:
     logger.setLevel(logging.DEBUG)
     logging.debug('Enabled Debug mode')
 
 # Enable logging to file if configured
-if 'logfile' in config['apisrv']:
-    lfh = RotatingFileHandler(config['apisrv']['logfile'], maxBytes=(1048576*5), backupCount=3)
-    lfh.setFormatter(lformat)
-    logger.addHandler(lfh)
+lfh = RotatingFileHandler("api.log", maxBytes=(1048576*5), backupCount=3)
+lfh.setFormatter(lformat)
+logger.addHandler(lfh)
 
 # STDOUT Logging defaults to Warning
 if not debug:
@@ -79,9 +67,9 @@ if not debug:
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, config['apisrv']['database']),
+    DATABASE=os.path.join(app.root_path, "api.db"),
     SQLALCHEMY_DATABASE_URI='sqlite:///' + \
-        os.path.join(app.root_path, config['apisrv']['database']),
+        os.path.join(app.root_path, "api.db"),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
 ))
 
@@ -106,6 +94,6 @@ limiter = Limiter(
 
 
 # Safe circular imports per Flask guide
-import apisrv.errors
-import apisrv.views
-import apisrv.user
+import api.errors
+import api.views
+import api.user

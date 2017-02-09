@@ -26,11 +26,10 @@ Add your own methods here
 import logging
 import subprocess
 from flask import jsonify, request
-from apisrv import app, auth, config
+from api import app, auth
 
 # Setup
 logger = logging.getLogger(__name__)
-app_name = config['apisrv']['app_name']
 
 # http://localhost:5000/test unauthenticated response of "Hello World"
 @app.route('/test')
@@ -41,7 +40,7 @@ def app_test():
     return jsonify(response)
 
 # System Uptime, requires authentication
-@app.route('/' + app_name + '/api/v1.0/uptime')
+@app.route('/api/v1.0/uptime')
 @auth.login_required
 def app_uptime():
     """ Runs a system command to get the uptime"""
@@ -51,7 +50,7 @@ def app_uptime():
     return jsonify(response)
 
 # Call echo shell cmd on message via /musc/api/v1.0/echo?message=testing
-@app.route('/' + app_name + '/api/v1.0/echo', methods=['GET'])
+@app.route('/api/v1.0/echo', methods=['GET'])
 @auth.login_required
 def app_echo():
     """ Runs the echo command with input 'message'
@@ -67,7 +66,7 @@ def app_echo():
         return jsonify({"error": "Must provide message attribute via GET"})
 
 # Info method, Return Request Data back to client as JSON
-@app.route('/' + app_name + '/api/v1.0/info', methods=['POST', 'GET'])
+@app.route('/api/v1.0/info', methods=['POST', 'GET'])
 @auth.login_required
 def app_getinfo():
     """ Returns Flask API Info """
@@ -91,7 +90,6 @@ def app_getinfo():
 @app.route('/')
 def app_index():
     """Index identifying the server"""
-    response = {"message": app_name + \
-                " api server: Authentication required for use",
+    response = {"message": "orangeninge-ui api server: Authentication required for use",
                 "status": "200"}
     return jsonify(response)

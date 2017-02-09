@@ -27,7 +27,7 @@ import sys
 import logging
 import time
 from passlib.hash import sha256_crypt
-from apisrv import auth, db
+from api import auth, db
 
 logger = logging.getLogger(__name__)
 
@@ -86,10 +86,9 @@ def add_user(username, passwd):
     user = User.query.filter_by(username=username).first()
 
     if user:
-        #print("Error: User already exists in DB", file=sys.stderr)
         raise Exception("Error: User already exists in DB")
     elif len(passwd) < 6:
-        print "Error: Password must be 6 or more characters"
+        logger.error("Error: Password must be 6 or more characters")
         exit(1)
     else:
         logger.info("Adding new user to the database: %s", username)
@@ -108,7 +107,7 @@ def update_password(username, passwd):
     user = User.query.filter_by(username=username).first()
 
     if len(passwd) < 6:
-        print "Error: Password must be 6 or more characters"
+        logger.error("Error: Password must be 6 or more characters")
         exit(1)
     elif user:
         logger.info("Updating password for user: %s", username)
@@ -120,8 +119,7 @@ def update_password(username, passwd):
 
         return phash
     else:
-
-        print "Error: User does not exists in DB"
+        logger.error("Error: User does not exists in DB")
         exit(1)
 
 def del_user(username):
@@ -137,6 +135,5 @@ def del_user(username):
 
         return True
     else:
-
-        print "Error: User does not exists in DB"
+        logger.error("Error: User does not exists in DB")
         exit(1)

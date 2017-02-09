@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Copyright (c) 2016 Jonathan Yantis
 #
@@ -20,25 +20,51 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 """
-REST API Sample Client
+API Errors Jsonified
 """
-import requests
-import json
+import logging
+from flask import Flask, jsonify, request, g, make_response
+from api import app, auth
 
-user = 'testuser'
-passwd = 'testpass'
-url = 'http://localhost:5000'
+logger = logging.getLogger(__name__)
 
-# Make a request (don't verify cert if SSL)
-r = requests.get(url + '/test/api/v1.0/info?var=testvar', auth=(user, passwd), verify=False)
+@app.errorhandler(404)
+def not_found(error=None):
+    message = {
+            'status': 404,
+            'message': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
+    return resp
 
-# Check for proper response
-if r.status_code == 200:
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    return make_response(
+            jsonify(error="ratelimit exceeded %s" % e.description)
+            , 429
+    )
 
-    # JSON Dict
-    response = r.json()
+@auth.error_handler
+def auth_failed(error=None):
+    message = {
+            'status': 401,
+            'message': 'Authentication Failed: ' + request.url
+    }
+    resp = jsonify(message)
+    resp.status_code = 401
 
-    # Dump JSON in pretty format
-    print(json.dumps(response, sort_keys=True, indent=4, separators=(',', ': ')))
-else:
-    print("Request Error:", r.status_code, r.text)
+    return resp
+
+@app.errorhandler(400)
+def bad_request(error):
+    print("Bad Request")
+    message = {
+            'status': 400,
+            'message': 'Bad Request: ' + request.url,
+    }
+    resp = jsonify(message)    
+    resp.status_code = 400
+    return resp
+
+
