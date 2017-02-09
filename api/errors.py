@@ -24,7 +24,7 @@ API Errors Jsonified
 """
 import logging
 from flask import Flask, jsonify, request, g, make_response
-from api import app, auth
+from api import app
 
 logger = logging.getLogger(__name__)
 
@@ -44,17 +44,6 @@ def ratelimit_handler(e):
             jsonify(error="ratelimit exceeded %s" % e.description)
             , 429
     )
-
-@auth.error_handler
-def auth_failed(error=None):
-    message = {
-            'status': 401,
-            'message': 'Authentication Failed: ' + request.url
-    }
-    resp = jsonify(message)
-    resp.status_code = 401
-
-    return resp
 
 @app.errorhandler(400)
 def bad_request(error):

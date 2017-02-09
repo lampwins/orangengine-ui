@@ -6,5 +6,6 @@
 *.pyc
 __pycache__
 api/api.log
+api.log
 api/api.db
 venv

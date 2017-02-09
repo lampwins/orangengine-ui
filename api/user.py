@@ -27,105 +27,78 @@ import sys
 import logging
 import time
 from passlib.hash import sha256_crypt
-from api import auth, db
+from api import db, app
+from flask_security import (http_auth_required, auth_token_required,
+                            Security, RoleMixin, UserMixin, SQLAlchemyUserDatastore)
+from flask_security.utils import encrypt_password
 
 logger = logging.getLogger(__name__)
 
-class User(db.Model):
-    """ SQL User Model """
+# A base model for other database tables to inherit
+class Base(db.Model):
+    __abstract__ = True
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    password = db.Column(db.String(120), unique=True)
-    role = db.Column(db.String(40))
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    modified_at = db.Column(db.DateTime, default=db.func.current_timestamp(),
+                            onupdate=db.func.current_timestamp())
 
-    def __init__(self, username, password, role='default'):
-        self.username = username
-        self.password = password
-        self.role = role
+
+roles_users = db.Table('roles_users',
+                       db.Column('user_id', db.Integer(),
+                                 db.ForeignKey('auth_user.id')),
+                       db.Column('role_id', db.Integer(),
+                                 db.ForeignKey('auth_role.id')))
+
+
+class Role(Base, RoleMixin):
+    __tablename__ = 'auth_role'
+    name = db.Column(db.String(80), nullable=False, unique=True)
+    description = db.Column(db.String(255))
+
+    def __init__(self, name):
+        self.name = name
 
     def __repr__(self):
-        return '<User {:}>'.format(self.username)
+        return '<Role %r>' % self.name
 
-@auth.verify_password
-def verify_password(username, password):
-    """API Password Verification"""
 
-    return authenticate_user(username, password)
+class User(Base, UserMixin):
+    __tablename__ = 'auth_user'
+    email = db.Column(db.String(255), nullable=False, unique=True)
+    password = db.Column(db.String(255), nullable=False)
+    first_name = db.Column(db.String(255))
+    last_name = db.Column(db.String(255))
+    active = db.Column(db.Boolean())
+    confirmed_at = db.Column(db.DateTime())
+    last_login_at = db.Column(db.DateTime())
+    current_login_at = db.Column(db.DateTime())
+    last_login_ip = db.Column(db.String(45))
+    current_login_ip = db.Column(db.String(45))
+    login_count = db.Column(db.Integer)
+    roles = db.relationship('Role', secondary=roles_users,
+                            backref=db.backref('users', lazy='dynamic'))
 
-def authenticate_user(username, passwd):
-    """ Authenticate a user """
+    def __repr__(self):
+        return '<User %r>' % self.email
 
-    user = User.query.filter_by(username=username).first()
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
 
-    authenticated = False
-
-    if user:
-        authenticated = sha256_crypt.verify(passwd, user.password)
-    else:
-        time.sleep(1)
-        logger.info("Authentication Error: User not found in DB: %s", username)
-        return False
-
-    if authenticated:
-        logger.debug("Successfully Authenticated user: %s", username)
-    else:
-        logger.info("Authentication Failed: %s", username)
-
-    return authenticated
-
-def get_phash(passwd):
-    """ Get a new hashed password """
-
-    return sha256_crypt.encrypt(passwd, rounds=100000)
 
 def add_user(username, passwd):
     """
     Add a new user to the database
     """
-
-    user = User.query.filter_by(username=username).first()
-
-    if user:
-        raise Exception("Error: User already exists in DB")
-    elif len(passwd) < 6:
-        logger.error("Error: Password must be 6 or more characters")
-        exit(1)
-    else:
-        logger.info("Adding new user to the database: %s", username)
-
-        phash = get_phash(passwd)
-
-        newuser = User(username, phash)
-        db.session.add(newuser)
+    if not User.query.first():
+        user_datastore.create_user(email=username, password=encrypt_password(passwd))
         db.session.commit()
-
-        return phash
-
-def update_password(username, passwd):
-    """ Update password for user """
-
-    user = User.query.filter_by(username=username).first()
-
-    if len(passwd) < 6:
-        logger.error("Error: Password must be 6 or more characters")
-        exit(1)
-    elif user:
-        logger.info("Updating password for user: %s", username)
-
-        phash = phash = get_phash(passwd)
-
-        user.password = phash
-        db.session.commit()
-
-        return phash
-    else:
-        logger.error("Error: User does not exists in DB")
-        exit(1)
+        return True
+    return False
 
 def del_user(username):
     """ Delete a user from the database """
 
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(email=username).first()
 
     if user:
         logger.info("Deleting user: %s", username)

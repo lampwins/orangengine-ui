@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #
 # Copyright (c) 2016 Jonathan Yantis
 #
@@ -24,11 +24,9 @@ Manage the API Server
 """
 import sys
 import getpass
-import apisrv
+from api import user, db, app
 import argparse
 
-# Config File
-config = apisrv.config
 
 parser = argparse.ArgumentParser()
 
@@ -53,8 +51,8 @@ if args.debug:
 
 # Initialize the Database
 if args.initdb:
-    apisrv.db.create_all()
-    apisrv.db.session.commit()
+    db.create_all()
+    db.session.commit()
 
 # Add user to DB
 elif args.adduser:
@@ -62,42 +60,30 @@ elif args.adduser:
     passwd = getpass.getpass('Password:')
     verify = getpass.getpass('Verify Password:')
 
-    if passwd == verify:
-        phash = apisrv.user.add_user(args.adduser, passwd)
-        if phash:
-            print("Successfully Added User to Database")
+    with app.app_context():
+        if passwd == verify:
+            phash = user.add_user(args.adduser, passwd)
+            if phash:
+                print("Successfully Added User to Database")
+            else:
+                print("Error: Could not Add User to Database")
         else:
-            print("Error: Could not Add User to Database")
-    else:
-        print("Error: Passwords do not match")
-    
-# Update User Password
-elif args.newpass:
-    passwd = getpass.getpass('New Password:')
-    verify = getpass.getpass('Verify Password:')
-
-    if passwd == verify:
-        phash = apisrv.user.update_password(args.newpass, passwd)
-        if phash:
-            print("Successfully Updated Password")
-        else:
-            print("Error: Could not Update Password")
-    else:
-        print("Error: Passwords do not match")
+            print("Error: Passwords do not match")
 
 # Delete a User
 elif args.deluser:
-    ucheck = apisrv.user.del_user(args.deluser)
+    with app.app_context():
+        ucheck = user.del_user(args.deluser)
 
-    if ucheck:
-        print("Successfully Deleted User")
-    else:
-        print("Username not found in DB")
+        if ucheck:
+            print("Successfully Deleted User")
+        else:
+            print("Username not found in DB")
 
 # Test Authentication
 elif args.testuser:
     passwd = getpass.getpass('Password:')
-    phash = apisrv.user.authenticate_user(args.testuser, passwd)
+    phash = user.authenticate_user(args.testuser, passwd)
     if phash:
         print("Successfully Authenticated")
     else:

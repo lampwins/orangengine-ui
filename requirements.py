@@ -6,3 +6,4 @@ flask_limiter
 passlib
 sqlalchemy
 flask_sqlalchemy
+Flask-Security-Fork

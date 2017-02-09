@@ -28,7 +28,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 import configparser
 from flask import Flask, jsonify, request, g, make_response
-from flask_httpauth import HTTPBasicAuth
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
@@ -66,15 +65,18 @@ if not debug:
 # Create Flask APP
 app = Flask(__name__)
 app.config.from_object(__name__)
+app.secret_key = 'super secret key, change me in prod!'
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, "api.db"),
     SQLALCHEMY_DATABASE_URI='sqlite:///' + \
         os.path.join(app.root_path, "api.db"),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SECURITY_TRACKABLE=True,
+    SECURITY_PASSWORD_HASH='pbkdf2_sha512',
+    SECURITY_PASSWORD_SALT='change me in prod!',
+    WTF_CSRF_ENABLED=False,
+    SECURITY_TOKEN_MAX_AGE=60*60*1000 # 1 hour
 ))
-
-# Auth module
-auth = HTTPBasicAuth()
 
 # Database module
 db = SQLAlchemy(app)
