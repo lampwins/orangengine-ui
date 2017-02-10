@@ -1,3 +1,7 @@
+appdirs
+packaging
+six
+python-dateutil
 pylint
 requests
 flask
@@ -6,4 +10,4 @@ flask_limiter
 passlib
 sqlalchemy
 flask_sqlalchemy
-Flask-Security-Fork
+Flask-Security-Forkdateutil

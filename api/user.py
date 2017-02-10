@@ -28,19 +28,12 @@ import logging
 import time
 from passlib.hash import sha256_crypt
 from api import db, app
+from api.models import Base
 from flask_security import (http_auth_required, auth_token_required,
                             Security, RoleMixin, UserMixin, SQLAlchemyUserDatastore)
 from flask_security.utils import encrypt_password
 
 logger = logging.getLogger(__name__)
-
-# A base model for other database tables to inherit
-class Base(db.Model):
-    __abstract__ = True
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
-    modified_at = db.Column(db.DateTime, default=db.func.current_timestamp(),
-                            onupdate=db.func.current_timestamp())
 
 
 roles_users = db.Table('roles_users',
