@@ -10,4 +10,4 @@ flask_limiter
 passlib
 sqlalchemy
 flask_sqlalchemy
-Flask-Security-Forkdateutil
+Flask-Security-Fork
