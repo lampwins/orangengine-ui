@@ -10,4 +10,8 @@ flask_limiter
 passlib
 sqlalchemy
 flask_sqlalchemy
-Flask-Security-Fork
+Flask-Bcrypt
+pyjwt
+coverage
+flask_migrate
+flask_script

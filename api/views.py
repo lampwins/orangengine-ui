@@ -27,7 +27,7 @@ import logging
 import subprocess
 from flask import jsonify, request
 from api import app
-from flask_security import auth_token_required
+from api.auth import auth_token_required
 
 # Setup
 logger = logging.getLogger(__name__)

@@ -31,6 +31,7 @@ from flask import Flask, jsonify, request, g, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
 logger = logging.getLogger(__name__)
 
@@ -65,18 +66,18 @@ if not debug:
 # Create Flask APP
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.secret_key = 'super secret key, change me in prod!'
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, "api.db"),
     SQLALCHEMY_DATABASE_URI='sqlite:///' + \
         os.path.join(app.root_path, "api.db"),
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    SECURITY_TRACKABLE=True,
-    SECURITY_PASSWORD_HASH='pbkdf2_sha512',
-    SECURITY_PASSWORD_SALT='change me in prod!',
-    WTF_CSRF_ENABLED=False,
-    SECURITY_TOKEN_MAX_AGE=60*60*1000 # 1 hour
+    SECRET_KEY='super sexy secrect key, change me!',
+    DEBUG = True,
+    BCRYPT_LOG_ROUNDS = 4,
+    SQLALCHEMY_TRACK_MODIFICATIONS = False,
 ))
+
+# encryption module
+bcrypt = Bcrypt(app)
 
 # Database module
 db = SQLAlchemy(app)
@@ -98,4 +99,7 @@ limiter = Limiter(
 # Safe circular imports per Flask guide
 import api.errors
 import api.views
-import api.user
+
+# auth blueprint
+from api.auth.views import auth_blueprint
+app.register_blueprint(auth_blueprint)
