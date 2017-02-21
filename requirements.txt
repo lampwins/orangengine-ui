@@ -15,3 +15,4 @@ pyjwt
 coverage
 flask_migrate
 flask_script
+Flask-Webpack

@@ -10,3 +10,13 @@ api.log
 api/api.db
 venv
 .idea/
+
+# frontend
+frontend/blur-admin/node_modules
+frontend/blur-admin/gulp.1
+frontend/blur-admin/build
+frontend/blur-admin/.tmp
+
+frontend/blur-admin/src/release
+frontend/blur-admin/release
+frontend/blur-admin/bower_components
