@@ -7,6 +7,7 @@
 
   angular.module('BlurAdmin.pages', [
     'ui.router',
+    'satellizer',
 
     'BlurAdmin.pages.dashboard',
     'BlurAdmin.pages.ui',
@@ -16,11 +17,19 @@
     'BlurAdmin.pages.charts',
     'BlurAdmin.pages.maps',
     'BlurAdmin.pages.profile',
+
   ])
       .config(routeConfig);
 
   /** @ngInject */
-  function routeConfig($urlRouterProvider, baSidebarServiceProvider) {
+  function routeConfig($stateProvider, $urlRouterProvider, baSidebarServiceProvider) {
+
+    $stateProvider
+      .state('login', {
+        templateUrl: '/auth/auth.login.view.html',
+        controller: 'authLoginCtrl',
+    });
+
     $urlRouterProvider.otherwise('/dashboard');
 
     baSidebarServiceProvider.addStaticItem({
