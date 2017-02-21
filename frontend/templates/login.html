@@ -1,5 +1,21 @@
 {% extends "adminlte/base_without_nav.html" %}
 
+{% block navbar %}
+        <!-- Sidebar toggle button-->
+        <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+        <div class="navbar-custom-menu">
+          <ul class="nav navbar-nav">
+            <!-- Messages: style can be found in dropdown.less-->
+            <a href="http://google.com" class="btn btn-default" role="button">Logout</a>
+              </ul>
+        </div>
+{%- endblock navbar %}
+
 {% block title %}Log In{% endblock %}
 {% block description %}Log into your account!{% endblock %}
 {% block bodytag %}login-page{% endblock %}
