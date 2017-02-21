@@ -1,0 +1,30 @@
+/* change logo text color */
+.navbar-brand {
+    text-align: left;
+    color: rgb(255, 184, 86);
+}
+
+/* change logout button background color */
+.navbar-btn {
+    background-color: rgb(255, 184, 86);
+}
+
+/* remove highlight from logo button */
+.navbar-light .navbar-brand:hover,
+.navbar-light .navbar-brand:focus {
+  background-color: transparent;
+  color: rgb(255, 184, 86);
+}
+
+/* change sidebar color */
+.nav-sidebar {
+  background-color: rgb(255, 184, 86);
+}
+
+/* jumbotron style */
+.jumbotron {
+  width: 200px;
+  p {
+  font-size: 12px;
+  }
+}
