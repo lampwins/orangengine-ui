@@ -17,18 +17,14 @@
     'BlurAdmin.pages.charts',
     'BlurAdmin.pages.maps',
     'BlurAdmin.pages.profile',
-
+    'BlurAdmin.pages.login'
   ])
       .config(routeConfig);
 
   /** @ngInject */
-  function routeConfig($stateProvider, $urlRouterProvider, baSidebarServiceProvider) {
+  function routeConfig($stateProvider, $urlRouterProvider, baSidebarServiceProvider,  $authProvider) {
 
-    $stateProvider
-      .state('login', {
-        templateUrl: '/auth/auth.login.view.html',
-        controller: 'authLoginCtrl',
-    });
+    //$authProvider.loginUrl = '/api/auth/login';
 
     $urlRouterProvider.otherwise('/dashboard');
 

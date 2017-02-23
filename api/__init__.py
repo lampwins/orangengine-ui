@@ -83,11 +83,11 @@ bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 
 # Apply Rate limiting
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    global_limits=flask_limits
-)
+#limiter = Limiter(
+#    app,
+#    key_func=get_remote_address,
+#    global_limits=flask_limits
+#)
 
 # Not Required with SQLAlchemy
 # @app.teardown_appcontext
