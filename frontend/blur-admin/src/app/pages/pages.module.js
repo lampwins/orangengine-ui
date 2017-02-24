@@ -19,49 +19,27 @@
     'BlurAdmin.pages.profile',
     'BlurAdmin.pages.login'
   ])
-      .config(routeConfig);
+      .config(routeConfig).run(runConfig);
 
   /** @ngInject */
-  function routeConfig($stateProvider, $urlRouterProvider, baSidebarServiceProvider,  $authProvider) {
-
-    //$authProvider.loginUrl = '/api/auth/login';
+  function routeConfig($stateProvider, $urlRouterProvider, baSidebarServiceProvider,
+                        $authProvider) {
 
     $urlRouterProvider.otherwise('/dashboard');
+  
+  };
 
-    baSidebarServiceProvider.addStaticItem({
-      title: 'Pages',
-      icon: 'ion-document',
-      subMenu: [{
-        title: 'Sign In',
-        fixedHref: 'auth.html',
-        blank: true
-      }, {
-        title: 'Sign Up',
-        fixedHref: 'reg.html',
-        blank: true
-      }, {
-        title: 'User Profile',
-        stateRef: 'profile'
-      }, {
-        title: '404 Page',
-        fixedHref: '404.html',
-        blank: true
-      }]
+  function runConfig($rootScope, $location, $auth) {
+
+    var routesThatDontRequireAuth = ['login'];
+
+    $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      // if route requires auth and user is not logged in
+      if (!routesThatDontRequireAuth.includes(to.title) && !$auth.isAuthenticated()) {
+        // redirect back to login
+        $location.path('/login');
+      }
     });
-    baSidebarServiceProvider.addStaticItem({
-      title: 'Menu Level 1',
-      icon: 'ion-ios-more',
-      subMenu: [{
-        title: 'Menu Level 1.1',
-        disabled: true
-      }, {
-        title: 'Menu Level 1.2',
-        subMenu: [{
-          title: 'Menu Level 1.2.1',
-          disabled: true
-        }]
-      }]
-    });
-  }
+  };
 
 })();

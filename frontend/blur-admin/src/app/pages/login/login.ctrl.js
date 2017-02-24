@@ -6,6 +6,9 @@
 
       $scope.login = function() {
 
+      $scope.alert = false;
+      document.getElementById('inputEmail3').focus()
+
       var user = {
         email: $scope.email,
         password: $scope.password
@@ -17,17 +20,17 @@
         data: $httpParamSerializerJQLike(user),
       };
 
-      console.log($scope)
-
       $auth.login(user, requestConfig)
         .then(function(response) {
-          console.log(response);
-          $window.localStorage.currentUserToken = JSON.stringify(response.data.auth_token);
-          $rootScope.currentUser = JSON.parse(localStorage.getItem('currentUserToken'));
+          // set the token and move on
+          $auth.setToken(JSON.stringify(response.data.auth_token));
           $location.path('/dashboard');
         })
         .catch(function(response) {
-          console.log(response);
+          $scope.email = '';
+          $scope.password = '';
+          document.getElementById('inputEmail3').focus()
+          $scope.alert = true;
         });
     };
 
