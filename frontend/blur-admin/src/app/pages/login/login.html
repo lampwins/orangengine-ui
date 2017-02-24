@@ -1,7 +1,8 @@
 <main class="auth-main">
   <div class="auth-block">
-    <h1>Sign in to Blur Admin</h1>
-    <a href="reg.html" class="auth-link">New to Blur Admin? Sign up!</a>
+    <h1>Sign in to Orangengine-UI</h1>
+
+    <div ng-show='alert' class="alert bg-danger">Error logining in. Wrong username and password?</div>
 
     <form method="post" ng-submit="login()" name="loginForm" novalidate class="form-horizontal">
       <div class="form-group">
@@ -26,14 +27,5 @@
       </div>
     </form>
 
-    <div class="auth-sep"><span><span>or Sign in with one click</span></span></div>
-
-    <div class="al-share-auth">
-      <ul class="al-share clearfix">
-        <li><i class="socicon socicon-facebook" title="Share on Facebook"></i></li>
-        <li><i class="socicon socicon-twitter" title="Share on Twitter"></i></li>
-        <li><i class="socicon socicon-google" title="Share on Google Plus"></i></li>
-      </ul>
-    </div>
   </div>
 </main>
