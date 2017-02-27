@@ -31,7 +31,10 @@ from flask import Flask, jsonify, request, g, make_response
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_bcrypt import Bcrypt
+from api.utils import OEUIJSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -66,15 +69,16 @@ if not debug:
 # Create Flask APP
 app = Flask(__name__)
 app.config.from_object(__name__)
+database_file = 'sqlite:///' + os.path.join(app.root_path, "api.db")
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, "api.db"),
-    SQLALCHEMY_DATABASE_URI='sqlite:///' + \
-        os.path.join(app.root_path, "api.db"),
+    SQLALCHEMY_DATABASE_URI=database_file,
     SECRET_KEY='super sexy secrect key, change me!',
     DEBUG = True,
     BCRYPT_LOG_ROUNDS = 4,
     SQLALCHEMY_TRACK_MODIFICATIONS = False,
 ))
+app.json_encoder = OEUIJSONEncoder
 
 # encryption module
 bcrypt = Bcrypt(app)

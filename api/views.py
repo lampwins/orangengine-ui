@@ -1,36 +1,19 @@
-#!/usr/bin/env python
-#
-# Copyright (c) 2016 Jonathan Yantis
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-# the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-"""
-API Views for serving user requests with examples
-Add your own methods here
-"""
+
 import logging
 import subprocess
-from flask import jsonify, request
-from api import app
+from flask import jsonify, request, abort
+from api import app, db
 from api.auth import auth_token_required
+from api.models import ChangeRequest
 
 # Setup
 logger = logging.getLogger(__name__)
+
+def data_results(data):
+    # wrap the data in a standard response and jsonify it
+    if isinstance(data, basestring):
+        data = {'message': data}
+    return jsonify({"data": data}, )
 
 # Info method, Return Request Data back to client as JSON
 @app.route('/v1.0/info', methods=['POST', 'GET'])
@@ -52,11 +35,63 @@ def app_getinfo():
     for key in request.form.keys():
         response['POST ' + key] = request.form[key]
 
-    return jsonify(response)
+    return data_results(response)
 
 @app.route('/')
 def app_index():
     """Index identifying the server"""
     response = {"message": "orangeninge-ui api server: Authentication required for use",
                 "status": "200"}
-    return jsonify(response)
+    return data_results(response)
+
+@app.route('/v1.0/change_requests', methods=['POST', 'GET'])
+@auth_token_required
+def change_requests():
+
+    if request.method == 'POST':
+        new_request = ChangeRequest(**request.json)
+        db.session.add(new_request)
+        db.session.commit()
+        return data_results("success")
+
+    elif request.method == 'GET':
+        status = request.args.get('status')
+        deleted = request.args.get('deleted', False)
+        if status:
+            # only with a specified state
+            result_set = ChangeRequest.query.filter_by(deleted=deleted, status=getattr(
+                                                    ChangeRequest.StateOptions, status)).all()
+        else:
+            # all change requests
+            result_set = ChangeRequest.query.filter_by(deleted=deleted).all()
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)
+
+@app.route('/v1.0/change_requests/<int:id>', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
+@auth_token_required
+def change_request(id):
+
+    # some weird session thing?
+    change_request = ChangeRequest.query.filter(ChangeRequest.id==id).first_or_404()
+
+    if request.method == 'GET':
+        return data_results(change_request.serialize())
+
+    elif request.method == 'PUT':
+        # not implemented
+        abort(501)
+
+    elif request.method == 'PATCH':
+        for key in request.json.keys():
+            if key != 'created_at' or key != 'modified_at' or key != 'id':
+                setattr(change_request, key, request.json[key])
+        db.session.commit()
+        return data_results('Patched change_request %d' % id)
+
+    elif request.method == 'DELETE':
+        change_request.deleted = True
+        db.session.commit()
+        return data_results('Deleted change_request %d' % id)
+
