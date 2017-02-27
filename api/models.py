@@ -2,6 +2,8 @@
 import datetime
 import jwt
 from api import db, app, bcrypt
+import enum
+import json
 
 
 # A base model for other database tables to inherit
@@ -14,20 +16,44 @@ class Base(db.Model):
 
 
 class ChangeRequest(Base):
+
+    class StateOptions(enum.Enum):
+        open = 'open'
+        closed = 'closed'
+        completed = 'completed'
+
+        def __str__(self):
+            return str(self.value)
+
+    __tablename__ = 'change_request'
     summary = db.Column(db.String(255))
     requestor = db.Column(db.String(255))
     application = db.Column(db.String(255))
     source_location = db.Column(db.String(255))
     destination_location = db.Column(db.String(255))
     action = db.Column(db.String(255))
+    deleted = db.Column(db.Boolean, default=False)
+    status = db.Column(db.Enum(StateOptions), default=StateOptions.open)
 
-    def __init__(self, summary, requestor, application, source_location, destination_location, action):
-        self.summary = summary
-        self.requestor = requestor
-        self.application = application
-        self.source_location = source_location
-        self.destination_location = destination_location
-        self.action = action
+    def __init__(self, **kwargs):
+        self.summary = kwargs.pop('summary')
+        self.requestor = kwargs.pop('requestor')
+        self.application = kwargs.pop('application')
+        self.source_location = kwargs.pop('source_location')
+        self.destination_location = kwargs.pop('destination_location')
+        self.action = kwargs.pop('action')
+
+    def serialize(self):
+        my_keys = self.__dict__.keys()
+        return_dict = {}
+        for k in my_keys:
+            if k.startswith('_'):
+                continue
+            value = self.__dict__.get(k)
+            if hasattr(value, 'serialize'):
+                value = value.serialize()
+            return_dict[k] = value
+        return return_dict
 
 
 class User(Base):

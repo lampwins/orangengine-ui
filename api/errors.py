@@ -1,59 +1,40 @@
-#!/usr/bin/env python
-#
-# Copyright (c) 2016 Jonathan Yantis
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-# the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-"""
-API Errors Jsonified
-"""
+
 import logging
 from flask import Flask, jsonify, request, g, make_response
 from api import app
+from werkzeug.exceptions import HTTPException
 
 logger = logging.getLogger(__name__)
 
-@app.errorhandler(404)
-def not_found(error=None):
+def standard_responce(data, code):
+    if isinstance(data, basestring):
+        data = {'error': data}
+    elif isinstance(data, HTTPException):
+        # origin is an abort()
+        data = {'error': data.description}
     message = {
-            'status': 404,
-            'message': 'Not Found: ' + request.url,
+        'status': code,
+        'errors': data,
     }
     resp = jsonify(message)
-    resp.status_code = 404
-    return resp
+    return resp, code
+
+@app.errorhandler(404)
+def not_found(error='The requested resource was not found'):
+    return standard_responce(error, 404)
 
 @app.errorhandler(429)
-def ratelimit_handler(e):
-    return make_response(
-            jsonify(error="ratelimit exceeded %s" % e.description)
-            , 429
-    )
+def ratelimit_handler(error="Ratelimit exceeded"):
+    return standard_responce(error, 429)
 
 @app.errorhandler(400)
-def bad_request(error):
-    print("Bad Request")
-    message = {
-            'status': 400,
-            'message': 'Bad Request: ' + request.url,
-    }
-    resp = jsonify(message)    
-    resp.status_code = 400
-    return resp
+def bad_request(error="Bad request"):
+    return standard_responce(error, 400)
 
+@app.errorhandler(501)
+def not_implemented(error="Not implemented"):
+    return standard_responce(error, 501)
 
+@app.errorhandler(403)
+def not_authorized(error="Not authorized"):
+    return standard_responce(error, 403)
