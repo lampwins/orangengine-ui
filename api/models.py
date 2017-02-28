@@ -13,35 +13,7 @@ class Base(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     modified_at = db.Column(db.DateTime, default=db.func.current_timestamp(),
                             onupdate=db.func.current_timestamp())
-
-
-class ChangeRequest(Base):
-
-    class StateOptions(enum.Enum):
-        open = 'open'
-        closed = 'closed'
-        completed = 'completed'
-
-        def __str__(self):
-            return str(self.value)
-
-    __tablename__ = 'change_request'
-    summary = db.Column(db.String(255))
-    requestor = db.Column(db.String(255))
-    application = db.Column(db.String(255))
-    source_location = db.Column(db.String(255))
-    destination_location = db.Column(db.String(255))
-    action = db.Column(db.String(255))
     deleted = db.Column(db.Boolean, default=False)
-    status = db.Column(db.Enum(StateOptions), default=StateOptions.open)
-
-    def __init__(self, **kwargs):
-        self.summary = kwargs.pop('summary')
-        self.requestor = kwargs.pop('requestor')
-        self.application = kwargs.pop('application')
-        self.source_location = kwargs.pop('source_location')
-        self.destination_location = kwargs.pop('destination_location')
-        self.action = kwargs.pop('action')
 
     def serialize(self):
         my_keys = self.__dict__.keys()
@@ -54,6 +26,52 @@ class ChangeRequest(Base):
                 value = value.serialize()
             return_dict[k] = value
         return return_dict
+
+
+class ChangeRequest(Base):
+
+    class StateOptions(enum.Enum):
+        open = 'open'
+        closed = 'closed'
+        completed = 'completed'
+
+    __tablename__ = 'change_request'
+    summary = db.Column(db.String(255))
+    requestor = db.Column(db.String(255))
+    application = db.Column(db.String(255))
+    source_location = db.Column(db.String(255))
+    destination_location = db.Column(db.String(255))
+    action = db.Column(db.String(255))
+    status = db.Column(db.Enum(StateOptions), default=StateOptions.open)
+
+    def __init__(self, **kwargs):
+        self.summary = kwargs.get('summary')
+        self.requestor = kwargs.get('requestor')
+        self.application = kwargs.get('application')
+        self.source_location = kwargs.get('source_location')
+        self.destination_location = kwargs.get('destination_location')
+        self.action = kwargs.get('action')
+
+
+class Device(Base):
+
+    class DriverOptions(enum.Enum):
+        juniper_srx = 'juniper_srx'
+        palo_alto_panorama = 'palo_alto_panorama'
+
+    __tablename__ = 'device'
+    username = db.Column(db.String(255))
+    password = db.Column(db.String(255))
+    apikey = db.Column(db.String(255), default=None)
+    hostname = db.Column(db.String(255))
+    driver = db.Column(db.Enum(DriverOptions))
+
+    def __init__(self, **kwargs):
+        self.username = kwargs.get('username')
+        self.password = kwargs.get('password')
+        self.apikey = kwargs.get('apikey')
+        self.hostname = kwargs.get('hostname')
+        self.driver = kwargs.get('driver')
 
 
 class User(Base):
