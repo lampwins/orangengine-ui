@@ -44,7 +44,7 @@ def app_index():
                 "status": "200"}
     return data_results(response)
 
-@app.route('/v1.0/change_requests', methods=['POST', 'GET'])
+@app.route('/v1.0/change_requests/', methods=['POST', 'GET'])
 @auth_token_required
 def change_requests():
 
@@ -69,7 +69,7 @@ def change_requests():
             serialized_list.append(obj.serialize())
         return data_results(serialized_list)
 
-@app.route('/v1.0/change_requests/<int:id>', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
+@app.route('/v1.0/change_requests/<int:id>/', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
 @auth_token_required
 def change_request(id):
 
