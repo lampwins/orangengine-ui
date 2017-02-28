@@ -4,7 +4,7 @@ import subprocess
 from flask import jsonify, request, abort
 from api import app, db
 from api.auth import auth_token_required
-from api.models import ChangeRequest
+from api.models import ChangeRequest, Device
 
 # Setup
 logger = logging.getLogger(__name__)
@@ -95,3 +95,46 @@ def change_request(id):
         db.session.commit()
         return data_results('Deleted change_request %d' % id)
 
+@app.route('/v1.0/devices/', methods=['POST', 'GET'])
+@auth_token_required
+def devices():
+
+    if request.method == 'POST':
+        new_device = Device(**request.json)
+        db.session.add(new_device)
+        db.session.commit()
+        return data_results("success")
+
+    elif request.method == 'GET':
+        deleted = request.args.get('deleted', False)
+        result_set = Device.query.filter_by(deleted=deleted).all()
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)
+
+@app.route('/v1.0/devices/<int:id>/', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
+@auth_token_required
+def device(id):
+
+    # some weird session thing?
+    device = Device.query.filter(Device.id==id).first_or_404()
+
+    if request.method == 'GET':
+        return data_results(device.serialize())
+
+    elif request.method == 'PUT':
+        # not implemented
+        abort(501)
+
+    elif request.method == 'PATCH':
+        for key in request.json.keys():
+            if key != 'created_at' or key != 'modified_at' or key != 'id':
+                setattr(device, key, request.json[key])
+        db.session.commit()
+        return data_results('Patched device %d' % id)
+
+    elif request.method == 'DELETE':
+        device.deleted = True
+        db.session.commit()
+        return data_results('Deleted device %d' % id)
