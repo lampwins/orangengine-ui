@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.dashboard', [])
+  angular.module('BlurAdmin.pages.dashboard', ['satellizer'])
       .config(routeConfig);
 
   /** @ngInject */
@@ -14,7 +14,7 @@
         .state('dashboard', {
           url: '/dashboard',
           templateUrl: 'app/pages/dashboard/dashboard.html',
-          title: 'DashboarD',
+          title: 'Dashboard',
           sidebarMeta: {
             icon: 'ion-android-home',
             order: 0,
