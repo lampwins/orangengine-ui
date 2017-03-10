@@ -9,7 +9,7 @@
       .controller('DashboardQueueCtrl', DashboardQueueCtrl);
 
   /** @ngInject */
-  function DashboardQueueCtrl($scope, baConfig) {
+  function DashboardQueueCtrl($scope, baConfig, $http, $auth) {
 
     $scope.transparent = baConfig.theme.blur;
     var dashboardColors = baConfig.colors.dashboard;
@@ -22,6 +22,20 @@
       var i = Math.floor(Math.random() * (colors.length - 1));
       return colors[i];
     }
+
+    function getChangeRequests() {
+
+      $http({
+        method: 'GET',
+        url: '/api/v1.0/change_requests/'
+      }).then(function successCallback(response) {
+          console.log(response)
+        }, function errorCallback(response) {
+          console.log(response)
+        });
+    }
+
+    getChangeRequests()
 
 
   }
