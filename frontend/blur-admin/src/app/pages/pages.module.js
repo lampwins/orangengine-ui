@@ -11,7 +11,8 @@
 
     'BlurAdmin.pages.dashboard',
     'BlurAdmin.pages.profile',
-    'BlurAdmin.pages.login'
+    'BlurAdmin.pages.login',
+    'BlurAdmin.pages.devices'
   ])
       .config(routeConfig).run(runConfig);
 
