@@ -4,7 +4,8 @@ import subprocess
 from flask import jsonify, request, abort
 from api import app, db
 from api.auth import auth_token_required
-from api.models import ChangeRequest, Device
+from api.models import ChangeRequest, Device, ZoneMapping
+import netaddr
 
 # Setup
 logger = logging.getLogger(__name__)
@@ -138,3 +139,65 @@ def device(id):
         device.deleted = True
         db.session.commit()
         return data_results('Deleted device %d' % id)
+
+@app.route('/v1.0/zone_mappings/', methods=['POST', 'GET'])
+@auth_token_required
+def zone_mappings():
+
+    if request.method == 'POST':
+        try:
+            netaddr.IPNetwork(request.json.get('network'))
+            new_zone_mapping = ZoneMapping(**request.json)
+            db.session.add(new_zone_mapping)
+            db.session.commit()
+        except Exception:
+            abort(400)
+
+        return data_results("success")
+
+    elif request.method == 'GET':
+        result_set = ZoneMapping.query.all()
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)
+
+@app.route('/v1.0/zone_mappings/<int:id>/', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
+@auth_token_required
+def zone_mapping(id):
+
+    # some weird session thing?
+    zone_mapping = ZoneMapping.query.filter(ZoneMapping.id==id).first_or_404()
+
+    if request.method == 'GET':
+        return data_results(zone_mapping.serialize())
+
+    elif request.method == 'PUT':
+        # not implemented
+        abort(501)
+
+    elif request.method == 'PATCH':
+        for key in request.json.keys():
+            if key != 'created_at' or key != 'modified_at' or key != 'id' or key != 'deleted':
+                setattr(zone_mapping, key, request.json[key])
+        db.session.commit()
+        return data_results('Patched zone mapping %d' % id)
+
+    elif request.method == 'DELETE':
+        db.session.delete(zone_mapping)
+        db.session.commit()
+        return data_results('Deleted zone mapping %d' % id)
+
+@app.route('/v1.0/zone_mappings/device/<int:id>/', methods=['GET'])
+@auth_token_required
+def zone_mapping_by_device(id):
+
+    # some weird session thing?
+    device = Device.query.filter(Device.id==id).first_or_404()
+
+    if request.method == 'GET':
+        result_set = ZoneMapping.query.filter_by(device_id=id)
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)

@@ -5,11 +5,14 @@
 .vscode
 *.pyc
 __pycache__
-api/api.log
-api.log
-api/api.db
 venv
 .idea/
+
+# api
+api/api.log
+api.log
+celerybeat-schedule.db
+dump.rdb
 
 # frontend
 frontend/blur-admin/node_modules

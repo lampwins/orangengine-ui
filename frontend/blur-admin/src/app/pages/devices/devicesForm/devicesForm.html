@@ -1,0 +1,116 @@
+<div ba-panel class="ng-scope">
+    <div ng-controller="DevicesFormCtrl as devicesNewVm">
+        <ba-wizard>
+            <ba-wizard-step title="Device Info" form="devicesNewVm.deviceInfoForm">
+                <form name="devicesNewVm.deviceInfoForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group has-feedback"
+                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.common_name.$invalid && (devicesNewVm.deviceInfoForm.common_name.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+                                <input type="text" class="form-control" id="common_name" name="common_name" placeholder="Common Name" ng-model="devicesNewVm.deviceInfo.common_name" required>
+                                <span class="help-block error-block basic-block">The colloquial name for the device</span>
+                            </div>
+                            <div class="form-group has-feedback"
+                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.deviceTypeItem.$invalid && (devicesNewVm.deviceInfoForm.deviceTypeItem.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+                                <ui-select ng-model="devicesNewVm.selectedItem.selected"
+                                        class="btn-group bootstrap-select form-control"
+                                        ng-disabled="false"
+                                        append-to-body="true"
+                                        search-enabled="false">
+                                    <ui-select-match placeholder="Device Type">
+                                        <span> {{$select.selected.label}}</span>
+                                    </ui-select-match>
+                                    <ui-select-choices repeat="deviceTypeItem in devicesNewVm.deviceTypeSelectItems | filter: $select.search">
+                                        <span ng-bind-html="deviceTypeItem.label"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                                <span class="help-block error-block basic-block">Device type for driver selection</span>
+                            </div>
+                            <div class="form-group has-feedback"
+                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.hostname.$invalid && (devicesNewVm.deviceInfoForm.hostname.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+                                <input type="text" class="form-control" id="hostname" name="hostname" placeholder="Hostname or IP" ng-model="devicesNewVm.deviceInfo.hostname" required>
+                                <span class="help-block error-block basic-block">Device hostname or IP</span>
+                            </div>
+                            <div class="form-group has-feedback"
+                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.username.$invalid && (devicesNewVm.deviceInfoForm.username.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Username" ng-model="devicesNewVm.deviceInfo.username">
+                                <span class="help-block error-block basic-block">Credentials for connecting to the device</span>
+                            </div>
+                            <div class="form-group" ng-class="{'has-error': devicesNewVm.deviceInfoForm.password.$invalid && (devicesNewVm.deviceInfoForm.password.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" ng-model="devicesNewVm.deviceInfo.password">
+                                <span class="help-block error-block basic-block">Credentials for connecting to the device</span>
+                            </div>
+                            <div class="form-group" ng-class="{'has-error': devicesNewVm.deviceInfoForm.apikey.$invalid && (devicesNewVm.deviceInfoForm.apikey.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+                                <input type="text" class="form-control" id="apikey" name="apikey" placeholder="API Key" ng-model="devicesNewVm.deviceInfo.apikey" required>
+                                <span class="help-block error-block basic-block">API key used to connect, if supported by the device</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </ba-wizard-step>
+            <ba-wizard-step title="Product Info" form="devicesNewVm.productInfoForm">
+                <form name="devicesNewVm.productInfoForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group has-feedback"
+                                    ng-class="{'has-error': devicesNewVm.productInfoForm.productName.$invalid && (devicesNewVm.productInfoForm.productName.$dirty || devicesNewVm.productInfoForm.$submitted)}">
+                                <label for="productName">Product name</label>
+                                <input type="text" class="form-control" id="productName" name="productName" placeholder="Product name" ng-model="devicesNewVm.productInfo.productName" required>
+                                <span class="help-block error-block basic-block">Required</span>
+                            </div>
+                            <div class="form-group" ng-class="{'has-error': devicesNewVm.productInfoForm.productId.$invalid && (devicesNewVm.productInfoForm.productId.$dirty || devicesNewVm.productInfoForm.$submitted)}">
+                                <label for="productId">Product id</label>
+                                <input type="text" class="form-control" id="productId" name="productId" placeholder="productId" ng-model="devicesNewVm.productInfo.productId" required>
+                                <span class="help-block error-block basic-block">Required</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productName">Category</label>
+                                <select class="form-control" title="Category" selectpicker>
+                                    <option selected>Electronics</option>
+                                    <option>Toys</option>
+                                    <option>Accessories</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </ba-wizard-step>
+            <ba-wizard-step title="Shipment"  form="devicesNewVm.addressForm">
+                <form name="devicesNewVm.addressForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group has-feedback"
+                                    ng-class="{'has-error': devicesNewVm.addressForm.address.$invalid && (devicesNewVm.addressForm.address.$dirty || devicesNewVm.addressForm.$submitted)}">
+                                <label for="productName">Shipment address</label>
+                                <input type="text" class="form-control" id="address" name="address" placeholder="Shipment address" ng-model="devicesNewVm.shipment.address" required>
+                                <span class="help-block error-block basic-block">Required</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="productName">Shipment method</label>
+                                <select class="form-control" title="Category" selectpicker>
+                                    <option selected>Fast & expensive</option>
+                                    <option>Cheap & free</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="checkbox">
+                        <label class="custom-checkbox">
+                            <input type="checkbox">
+                            <span>Save shipment info</span>
+                        </label>
+                    </div>
+                </form>
+            </ba-wizard-step>
+            <ba-wizard-step title="Finish">
+                <form class="form-horizontal" name="devicesNewVm.finishForm" novalidate>
+                    Congratulations! You have successfully filled the form!
+                </form>
+            </ba-wizard-step>
+        </ba-wizard>
+    </div>
+</div>

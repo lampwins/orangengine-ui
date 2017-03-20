@@ -1,13 +1,19 @@
 
 import datetime
 import jwt
-from api import db, app, bcrypt
+from api import db, app, bcrypt, logger
 import enum
-import json
 
 
-# A base model for other database tables to inherit
+# ORANGENGINE-UI MODELS
+
+
 class Base(db.Model):
+    """Base model
+
+    Provides the basic attributes available in all models.
+    """
+
     __abstract__ = True
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -16,6 +22,10 @@ class Base(db.Model):
     deleted = db.Column(db.Boolean, default=False)
 
     def serialize(self):
+        """Default serializer
+
+        May be overriden in subs, to modify behavior
+        """
         my_keys = self.__dict__.keys()
         return_dict = {}
         for k in my_keys:
@@ -29,8 +39,17 @@ class Base(db.Model):
 
 
 class ChangeRequest(Base):
+    """Change Request model
+
+    Represents firewall policy change requests. I.e. in the human form,
+    "This server needs to talk to this other sever over this port."
+
+    The implementation of a cahnge request is what we are actually trying
+    to automate here...
+    """
 
     class StateOptions(enum.Enum):
+        """Enum options for state"""
         open = 'open'
         closed = 'closed'
         completed = 'completed'
@@ -54,8 +73,14 @@ class ChangeRequest(Base):
 
 
 class Device(Base):
+    """Device model
+
+    Represents the connection parameters user to instanciate a firewall
+    device in orangengine.
+    """
 
     class DriverOptions(enum.Enum):
+        """Enum options for device_type for driver selection in orangengine"""
         juniper_srx = 'juniper_srx'
         palo_alto_panorama = 'palo_alto_panorama'
 
@@ -65,6 +90,8 @@ class Device(Base):
     apikey = db.Column(db.String(255), default=None)
     hostname = db.Column(db.String(255))
     driver = db.Column(db.Enum(DriverOptions))
+    refresh_interval = db.Column(db.Integer(), default=60)
+    common_name = db.Column(db.String(255))
 
     def __init__(self, **kwargs):
         self.username = kwargs.get('username')
@@ -72,6 +99,39 @@ class Device(Base):
         self.apikey = kwargs.get('apikey')
         self.hostname = kwargs.get('hostname')
         self.driver = kwargs.get('driver')
+        self.refresh_interval = kwargs.get('refresh_interval')
+        self.common_name = kwargs.get('common_name')
+
+    def serialize(self):
+        """Override to leave out password and apikey as these are protected"""
+        data = super(Device, self).serialize()
+        data.pop('password')
+        data.pop('apikey')
+        return data
+
+
+class ZoneMapping(Base):
+    """Zone Mapping model
+
+    Represents a zone mapping for a device. A zone mapping is key/value lookup
+    for network to zone containment on a firewall.
+
+    i.e., 10.0.0.0/24 -> untrust
+
+    These mappings are used to figure out which zone a network or IP belongs to
+    when generating a firewall policy on a zone based firewall.
+    """
+
+    __tablename__ = 'zone_mapping'
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'), nullable=False)
+    zone_name = db.Column(db.String(255), nullable=False)
+    network = db.Column(db.String(18), nullable=False)
+    __table_args__ = (db.UniqueConstraint('device_id', 'zone_name', 'network',
+                                          name='_zone_network_mapping_uc'),
+                     )
+
+
+# USER MODELS FOR AUTHENTICATION
 
 
 class User(Base):
@@ -115,7 +175,10 @@ class User(Base):
         :param auth_token:
         :return: integer|string
         """
+        # logger.debug("decoding aut_token: %s" % auth_token)
         try:
+            # strip any quotes
+            auth_token = auth_token.strip('"')
             payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'))
             is_blacklisted_token = BlacklistToken.check_blacklist(auth_token)
             if is_blacklisted_token:
@@ -126,6 +189,9 @@ class User(Base):
             return 'Signature expired. Please log in again.'
         except jwt.InvalidTokenError:
             return 'Invalid token. Please log in again.'
+
+    def serialize(self):
+        pass
 
 
 class BlacklistToken(Base):

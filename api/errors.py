@@ -38,3 +38,7 @@ def not_implemented(error="Not implemented"):
 @app.errorhandler(403)
 def not_authorized(error="Not authorized"):
     return standard_responce(error, 403)
+
+@app.errorhandler(405)
+def method_not_allowed(error="Method not allowed"):
+    return standard_responce(error, 405)

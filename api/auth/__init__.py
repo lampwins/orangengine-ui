@@ -3,11 +3,13 @@
 from functools import wraps
 from api.models import User
 from flask import make_response, jsonify, request
+from api import logger
 
 def auth_token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
+        # logger.debug("auth header: %s" % auth_header)
         if auth_header:
             auth_token = auth_header.split(" ")[1]
         else:
