@@ -19,3 +19,4 @@ enum34
 celery
 redis
 psycopg2
+netaddr
