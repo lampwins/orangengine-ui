@@ -18,6 +18,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
+# pylint: disable C0103
+#
 """
 Flask API Server
 """
@@ -35,14 +37,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_bcrypt import Bcrypt
 from api.utils import OEUIJSONEncoder
+from celery import Celery
+import redis
 
 logger = logging.getLogger(__name__)
 
 # Populated from config file
 debug = 1
-
-# Flask Limits for Safety
-flask_limits = ["1000 per day", "100 per hour", "5 per minute"]
 
 # Logging Configuration, default level INFO
 logger = logging.getLogger('')
@@ -69,14 +70,17 @@ if not debug:
 # Create Flask APP
 app = Flask(__name__)
 app.config.from_object(__name__)
-database_file = 'sqlite:///' + os.path.join(app.root_path, "api.db")
+# database_file = 'sqlite:///' + os.path.join(app.root_path, "api.db")
+database = 'postgres://orangengine_ui:orangengine_ui@localhost/orangengine_ui'
 app.config.update(dict(
-    DATABASE=os.path.join(app.root_path, "api.db"),
-    SQLALCHEMY_DATABASE_URI=database_file,
+    DATABASE=database,
+    SQLALCHEMY_DATABASE_URI=database,
     SECRET_KEY='super sexy secrect key, change me!',
-    DEBUG = True,
-    BCRYPT_LOG_ROUNDS = 4,
-    SQLALCHEMY_TRACK_MODIFICATIONS = False,
+    DEBUG=True,
+    BCRYPT_LOG_ROUNDS=4,
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    CELERY_BROKER_URL='redis://localhost:6379/0',
+    CELERY_RESULT_BACKEND='redis://localhost:6379/0',
 ))
 app.json_encoder = OEUIJSONEncoder
 
@@ -86,19 +90,21 @@ bcrypt = Bcrypt(app)
 # Database module
 db = SQLAlchemy(app)
 
-# Apply Rate limiting
-#limiter = Limiter(
-#    app,
-#    key_func=get_remote_address,
-#    global_limits=flask_limits
-#)
+# celery config
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.beat_schedule = {
+    'beat_interval_runner': {
+        'task': 'api.async.device.beat_interval_runner',
+        'schedule': 300.0
+    },
+}
+celery.broker_url = 'redis://localhost:6379/0'
+celery.result_backend = 'redis://localhost:6379/0'
+celery.conf.timezone = 'UTC'
 
-# Not Required with SQLAlchemy
-# @app.teardown_appcontext
-# def close_db(error):
-#     """Closes the database again at the end of the request."""
-#     db.remove()
-
+# redis connections
+device_refresh_redis_conection = redis.StrictRedis(host='localhost', port=6379, db=1)
+jobs_redis_conection = redis.StrictRedis(host='localhost', port=6379, db=2)
 
 # Safe circular imports per Flask guide
 import api.errors
@@ -107,3 +113,15 @@ import api.views
 # auth blueprint
 from api.auth.views import auth_blueprint
 app.register_blueprint(auth_blueprint)
+
+from api.async.device import init_devices
+
+@app.before_first_request
+def _run_on_start():
+    """Lazy init of devices on the first request to the api.
+    This should happen pretty early on, for example when a user is authenticating.
+    This is okay becasue it is being queued in celery and run in the background.
+    """
+
+    logger.debug('Dispatching device init for the first time')
+    init_devices.delay()
