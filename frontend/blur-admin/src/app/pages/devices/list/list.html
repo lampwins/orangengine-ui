@@ -1,0 +1,38 @@
+<div ba-panel class="ng-scope">
+  <main class="devices-main">
+    <div class="devices-container" ng-class="{'transparent': transparent}">
+      <div class="add-row-editable-table">
+        <button class="btn btn-primary" ng-click="go('/devices/form')">New Device</div>
+      </div>
+      <div class="horizontal-scroll">
+        <table class="table">
+          <thead>
+          <tr>
+            <th class="browser-icons">Status</th>
+            <th>Common Name</th>
+            <th>Hostname</th>
+            <th>Username</th>
+            <th>Device Type</th>
+            <th>&nbsp;</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="item in devicesTableData">
+            <td><span class="ion-android-done"></span></td>
+            <td ng-class="nowrap">{{item.common_name}}</td>
+            <td>{{item.hostname}}</td>
+            <td>{{item.username}}</td>
+            <td>{{item.driver}}</td>
+            <td>
+              <button type="submit" class="btn btn-primary btn-xs">
+                Edit
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+</div>

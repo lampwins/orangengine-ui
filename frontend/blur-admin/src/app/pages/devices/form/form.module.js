@@ -9,8 +9,8 @@
     $stateProvider
         .state('devices.form', {
           url: '/form',
-          title: 'Devcies',
-          templateUrl: 'app/pages/devices/devicesForm/devicesForm.html',
+          title: 'New Device',
+          templateUrl: 'app/pages/devices/form/form.html',
         });
   }
 

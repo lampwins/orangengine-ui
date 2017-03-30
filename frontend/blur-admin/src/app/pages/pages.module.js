@@ -18,9 +18,15 @@
 
   /** @ngInject */
   function routeConfig($stateProvider, $urlRouterProvider, baSidebarServiceProvider,
-                        $authProvider) {
+                       $authProvider) {
 
     $urlRouterProvider.otherwise('/dashboard');
+
+    baSidebarServiceProvider.addStaticItem({
+      title: 'Devices',
+      icon: 'ion-fireball',
+      stateRef: 'devices.list'
+    });
 
   };
 

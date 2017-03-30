@@ -4,8 +4,12 @@ import subprocess
 from flask import jsonify, request, abort
 from api import app, db
 from api.auth import auth_token_required
-from api.models import ChangeRequest, Device, ZoneMapping
+from api.models import ChangeRequest, Device, ZoneMapping, ZoneMappingRule
+from api.models import SupplementalDeviceParam
 import netaddr
+from api.async.device import refresh_device, deprovision_device
+from api.async.jobs import generate_job_id, get_job_status
+
 
 # Setup
 logger = logging.getLogger(__name__)
@@ -96,10 +100,35 @@ def change_request(id):
         db.session.commit()
         return data_results('Deleted change_request %d' % id)
 
-@app.route('/v1.0/devices/', methods=['POST', 'GET'])
+@app.route('/v1.0/devices/', methods=['POST', 'GET', 'PUT'])
 @auth_token_required
 def devices():
 
+    # one-to-many relationships
+    if request.method == 'POST' or request.method == 'PUT':
+        zone_mappings_list = request.json.pop('zone_mappings', [])
+        zone_mapping_rules_list = request.json.pop('zone_mapping_rules', [])
+        supplemental_device_params_list = request.json.pop('supplemental_device_params', [])
+        if zone_mappings_list:
+            request.json['zone_mappings'] = []
+            for mapping in zone_mappings_list:
+                zone_mapping = ZoneMapping(**mapping)
+                db.session.add(zone_mapping)
+                request.json['zone_mappings'].append(zone_mapping)
+        if zone_mapping_rules_list:
+            request.json['zone_mapping_rules'] = []
+            for mapping_rule in zone_mapping_rules_list:
+                zone_mapping_rule = ZoneMappingRule(**mapping_rule)
+                db.session.add(zone_mapping_rule)
+                request.json['zone_mapping_rules'].append(zone_mapping_rule)
+        if supplemental_device_params_list:
+            request.json['supplemental_device_params'] = []
+            for instance in supplemental_device_params_list:
+                supplemental_device_param = SupplementalDeviceParam(**instance)
+                db.session.add(supplemental_device_param)
+                request.json['supplemental_device_params'].append(supplemental_device_param)
+
+    # request methods
     if request.method == 'POST':
         new_device = Device(**request.json)
         db.session.add(new_device)
@@ -113,6 +142,22 @@ def devices():
         for obj in result_set:
             serialized_list.append(obj.serialize())
         return data_results(serialized_list)
+
+    elif request.method == 'PUT':
+        device = Device.query.filter_by(hostname=request.json.get('hostname')).first()
+        if device:
+            for key in request.json.keys():
+                if key != 'created_at' or key != 'modified_at' or key != 'id':
+                    setattr(device, key, request.json[key])
+            if not request.json.get('deleted'):
+                setattr(device, 'deleted', False)
+        else:
+            device = Device(**request.json)
+            db.session.add(device)
+
+        db.session.commit()
+        refresh_device.delay(device.hostname, True)
+        return data_results({'status':'success', 'object_id': device.id})
 
 @app.route('/v1.0/devices/<int:id>/', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
 @auth_token_required
@@ -136,8 +181,15 @@ def device(id):
         return data_results('Patched device %d' % id)
 
     elif request.method == 'DELETE':
-        device.deleted = True
+        hostname = device.hostname
+        if request.args.get('hard', False):
+            # hard delete (delete from db)
+            db.session.delete(device)
+        else:
+            # soft delete (set the deleted flag)
+            device.deleted = True
         db.session.commit()
+        deprovision_device.delay(hostname)
         return data_results('Deleted device %d' % id)
 
 @app.route('/v1.0/zone_mappings/', methods=['POST', 'GET'])
@@ -188,7 +240,7 @@ def zone_mapping(id):
         db.session.commit()
         return data_results('Deleted zone mapping %d' % id)
 
-@app.route('/v1.0/zone_mappings/device/<int:id>/', methods=['GET'])
+@app.route('/v1.0/zone_mappings/device/<int:id>/', methods=['GET', 'DELETE'])
 @auth_token_required
 def zone_mapping_by_device(id):
 
@@ -201,3 +253,83 @@ def zone_mapping_by_device(id):
         for obj in result_set:
             serialized_list.append(obj.serialize())
         return data_results(serialized_list)
+
+    elif request.method == 'DELETE':
+        ZoneMapping.query.filter_by(device_id=id).delete()
+        db.session.commit()
+        return data_results('successfully deleted all zone_mappings for device %s' % id)
+
+@app.route('/v1.0/zone_mapping_rules/', methods=['POST', 'GET'])
+@auth_token_required
+def zone_mapping_rules():
+
+    if request.method == 'POST':
+        try:
+            netaddr.IPNetwork(request.json.get('destination_network'))
+            new_zone_mapping_rule = ZoneMappingRule(**request.json)
+            db.session.add(new_zone_mapping_rule)
+            db.session.commit()
+        except Exception:
+            abort(400)
+
+        return data_results("success")
+
+    elif request.method == 'GET':
+        result_set = ZoneMappingRule.query.all()
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)
+
+@app.route('/v1.0/zone_mapping_rules/<int:id>/', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
+@auth_token_required
+def zone_mapping_rule(id):
+
+    # some weird session thing?
+    zone_mapping_rule = ZoneMappingRule.query.filter(ZoneMappingRule.id==id).first_or_404()
+
+    if request.method == 'GET':
+        return data_results(zone_mapping_rule.serialize())
+
+    elif request.method == 'PUT':
+        # not implemented
+        abort(501)
+
+    elif request.method == 'PATCH':
+        for key in request.json.keys():
+            if key != 'created_at' or key != 'modified_at' or key != 'id' or key != 'deleted':
+                setattr(zone_mapping_rule, key, request.json[key])
+        db.session.commit()
+        return data_results('Patched zone mapping %d' % id)
+
+    elif request.method == 'DELETE':
+        db.session.delete(zone_mapping_rule)
+        db.session.commit()
+        return data_results('Deleted zone mapping %d' % id)
+
+@app.route('/v1.0/zone_mapping_rules/device/<int:id>/', methods=['GET', 'DELETE'])
+@auth_token_required
+def zone_mapping_rule_by_device(id):
+
+    # some weird session thing?
+    device = Device.query.filter(Device.id==id).first_or_404()
+
+    if request.method == 'GET':
+        result_set = ZoneMappingRule.query.filter_by(device_id=id)
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)
+
+    elif request.method == 'DELETE':
+        ZoneMappingRule.query.filter_by(device_id=id).delete()
+        db.session.commit()
+        return data_results('successfully deleted all zone_mapping_rules for device %s' % id)
+
+@app.route('/v1.0/jobs/<uuid:id>/', methods=['GET'])
+@auth_token_required
+def jobs(id):
+    """Get Status/Result for a job ID
+    """
+    status = get_job_status(id) or abort(404)
+    return data_results({'status': status, 'job_id': str(id)})

@@ -13,4 +13,8 @@ def generate_job_id():
     return job_id
 
 
-
+def get_job_status(job_id):
+    """Return the job status for the given id
+    """
+    job_status = jobs_redis_conection.get(job_id)
+    return job_status
