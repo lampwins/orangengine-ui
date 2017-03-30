@@ -3,6 +3,7 @@ import datetime
 import jwt
 from api import db, app, bcrypt, logger
 import enum
+from sqlalchemy.dialects.postgresql import CIDR
 
 
 # ORANGENGINE-UI MODELS
@@ -63,14 +64,6 @@ class ChangeRequest(Base):
     action = db.Column(db.String(255))
     status = db.Column(db.Enum(StateOptions), default=StateOptions.open)
 
-    def __init__(self, **kwargs):
-        self.summary = kwargs.get('summary')
-        self.requestor = kwargs.get('requestor')
-        self.application = kwargs.get('application')
-        self.source_location = kwargs.get('source_location')
-        self.destination_location = kwargs.get('destination_location')
-        self.action = kwargs.get('action')
-
 
 class Device(Base):
     """Device model
@@ -92,15 +85,14 @@ class Device(Base):
     driver = db.Column(db.Enum(DriverOptions))
     refresh_interval = db.Column(db.Integer(), default=60)
     common_name = db.Column(db.String(255))
-
-    def __init__(self, **kwargs):
-        self.username = kwargs.get('username')
-        self.password = kwargs.get('password')
-        self.apikey = kwargs.get('apikey')
-        self.hostname = kwargs.get('hostname')
-        self.driver = kwargs.get('driver')
-        self.refresh_interval = kwargs.get('refresh_interval')
-        self.common_name = kwargs.get('common_name')
+    zone_mappings = db.relationship('ZoneMapping', backref='device', lazy='dynamic',
+                                    cascade="all,delete")
+    zone_mapping_rules = db.relationship('ZoneMappingRule', backref='device', lazy='dynamic',
+                                         cascade="all,delete",)
+    supplemental_device_params = db.relationship('SupplementalDeviceParam', backref='device',
+                                                 lazy='dynamic', cascade="all,delete",)
+    __table_args__ = (db.UniqueConstraint('hostname', name='_hostname_uc'),
+                     )
 
     def serialize(self):
         """Override to leave out password and apikey as these are protected"""
@@ -108,6 +100,21 @@ class Device(Base):
         data.pop('password')
         data.pop('apikey')
         return data
+
+
+class SupplementalDeviceParam(Base):
+    """Supplemental Device Param
+
+    These get passed to the orangengine driver when dispatching a new device.
+    They are the params that are specific to that driver.
+    """
+
+    __tablename__ = 'supplemental_device_param'
+    name = db.Column(db.String(255), nullable=False)
+    value = db.Column(db.String(255), nullable=False)
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    __table_args__ = (db.UniqueConstraint('device_id', 'name', name='_device_param_uc'),
+                     )
 
 
 class ZoneMapping(Base):
@@ -123,11 +130,32 @@ class ZoneMapping(Base):
     """
 
     __tablename__ = 'zone_mapping'
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'), nullable=False)
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
     zone_name = db.Column(db.String(255), nullable=False)
-    network = db.Column(db.String(18), nullable=False)
+    network = db.Column(CIDR, nullable=False)
     __table_args__ = (db.UniqueConstraint('device_id', 'zone_name', 'network',
                                           name='_zone_network_mapping_uc'),
+                     )
+
+
+class ZoneMappingRule(Base):
+    """Zone Mapping Rule model
+
+    Prepresents a logical rule for mapping zones in special cases where
+    routing on the firewall requires a specific destination zone to be used
+    that would not normally be matched in this case.
+
+    They come in the form of:
+    source zone -> destination network = destination zone
+    """
+
+    __tablename__ = 'zone_mapping_rules'
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    source_zone_name = db.Column(db.String(255), nullable=False)
+    destination_network = db.Column(CIDR, nullable=False)
+    destination_zone_name = db.Column(db.String(255), nullable=False)
+    __table_args__ = (db.UniqueConstraint('device_id', 'source_zone_name',
+                                          'destination_network', 'destination_zone_name'),
                      )
 
 

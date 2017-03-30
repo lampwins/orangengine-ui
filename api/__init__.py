@@ -38,6 +38,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_bcrypt import Bcrypt
 from api.utils import OEUIJSONEncoder
 from celery import Celery
+from celery.signals import task_postrun
 import redis
 
 logger = logging.getLogger(__name__)
@@ -91,7 +92,7 @@ bcrypt = Bcrypt(app)
 db = SQLAlchemy(app)
 
 # celery config
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, backend="redis", broker=app.config['CELERY_BROKER_URL'])
 celery.conf.beat_schedule = {
     'beat_interval_runner': {
         'task': 'api.async.device.beat_interval_runner',
@@ -125,3 +126,10 @@ def _run_on_start():
 
     logger.debug('Dispatching device init for the first time')
     init_devices.delay()
+
+@task_postrun.connect(sender=None)
+def task_postrun_update(sender=None, task_id=None, state=None, **kwargs):
+    """Task post runner
+    Updates the task state in redis
+    """
+    jobs_redis_conection.set(task_id, state)

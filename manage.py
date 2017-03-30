@@ -66,6 +66,7 @@ def create_db():
 @manager.command
 def drop_db():
     """Drops the db tables."""
+    db.reflect()
     db.drop_all()
 
 

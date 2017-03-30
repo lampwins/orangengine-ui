@@ -25,16 +25,18 @@ def init_devices():
         # and we do not want to schedule if the refresh fails
         refresh_device.delay(device_model.hostname)
 
-        celery_logger.debug('Scheduling device refresh interval for %s', device_model.hostname)
         if device_model.refresh_interval > 0:
             # only some devices wish to be periodically refreshed
             schedule_device_refresh(device_model.hostname, device_model.refresh_interval)
 
 
 @celery_app.task(base=DeviceTask)
-def refresh_device(hostname):
+def refresh_device(hostname, reschedule=False):
     """Call the orangengine refresh method on the device"""
     device = refresh_device.device_factory.get_device(hostname)
+    if reschedule:
+        device_model = refresh_device.device_factory.get_device_model(hostname)
+        schedule_device_refresh(hostname, device_model.refresh_interval)
     celery_logger.info('Refreshing device: %s', hostname)
     device.refresh()
 
@@ -42,9 +44,19 @@ def refresh_device(hostname):
 def schedule_device_refresh(hostname, device_interval):
     """Set the device refresh interval for the given hostname and device_interval
     """
+    device_key = REDIS_DEV_REF_INTV_COUNT_PREFIX + hostname
+    unschedule_device_refresh(hostname)
+    celery_logger.info('Scheduling device refresh interval for %s', hostname)
     interval = int(CELERY_BEAT_INTERVAL * round(float(device_interval)/CELERY_BEAT_INTERVAL))
-    device_refresh_redis_conection.set(REDIS_DEV_REF_INTV_COUNT_PREFIX + hostname,
-                                       int(interval / CELERY_BEAT_INTERVAL) - 1)
+    device_refresh_redis_conection.set(device_key, int(interval / CELERY_BEAT_INTERVAL) - 1)
+
+
+def unschedule_device_refresh(hostname):
+    """Remove the device from the refresh schedule
+    """
+    celery_logger.info("Unscheduling refresh for %s" % hostname)
+    device_key = REDIS_DEV_REF_INTV_COUNT_PREFIX + hostname
+    device_refresh_redis_conection.delete(device_key)
 
 
 @celery_app.task(base=DeviceTask)
@@ -67,3 +79,13 @@ def beat_interval_runner():
         else:
             # not due for a refresh, so just decrement the counter
             device_refresh_redis_conection.set(hostname_key, value - 1)
+
+@celery_app.task(base=DeviceTask)
+def deprovision_device(hostname):
+    """End the lifecycle for the device with the given hostname
+
+    Signal the factory, and unschedule the device
+    """
+    celery_logger.info("Deprovisioning device %s" % hostname)
+    unschedule_device_refresh(hostname)
+    deprovision_device.device_factory.delete_device(hostname)

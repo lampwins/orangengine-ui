@@ -1,10 +1,10 @@
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.devices')
-    .controller('DevicesTableCtrl', DevicesTableCtrl)
+  angular.module('BlurAdmin.pages.devices.list')
+    .controller('DevicesListCtrl', DevicesListCtrl)
     
-  function DevicesTableCtrl($scope, $http, $uibModal, $location) {
+  function DevicesListCtrl($scope, $http, $uibModal, $location) {
 
     $http({
       method: 'GET',

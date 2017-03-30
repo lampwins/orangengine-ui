@@ -47,7 +47,7 @@ class OEDeviceFactory(object):
     def _refresh_device_model(self, hostname):
         """load and override the device model from the database for the given hostname"""
 
-        device_model = DeviceModel.query.filter_by(deleted=False, hostname=hostname)
+        device_model = DeviceModel.query.filter_by(deleted=False, hostname=hostname).first()
         if device_model:
             self._device_models[hostname] = device_model
 
@@ -57,7 +57,7 @@ class OEDeviceFactory(object):
         """replace all device models and refrsh them"""
 
         self._device_models = {}
-        device_models = DeviceModel.query.filter_by(deleted=False)
+        device_models = DeviceModel.query.filter_by(deleted=False).all()
         if device_models:
             for device_model in device_models:
                 self._device_models[device_model.hostname] = device_model
@@ -91,3 +91,11 @@ class OEDeviceFactory(object):
         """Return the device model for a given hostname
         """
         return self._device_models.get(hostname)
+
+    def delete_device(self, hostname, include_model=True):
+        """Delete the orangengine device instance and optionally the model
+        """
+        self._devices.pop(hostname)
+        if include_model:
+            self._device_models.pop(hostname)
+
