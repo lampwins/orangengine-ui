@@ -1,44 +1,28 @@
 <div class="queue-container" ng-class="{'transparent': transparent}">
   <div class="table-responsive">
-    <table class="table table-striped">
+    <table class="table">
       <thead>
         <tr>
-          <th>Requester</th>
-          <th>Application</th>
-          <th>Date</th>
-          <th>Summary</th>
-          <th>Source</th>
-          <th>Destination</th>
-          <th>Actions</th>
+          <th><b>Requester</b></th>
+          <th><b>Application</b></th>
+          <th><b>Summary</b></th>
+          <th><b>Source</b></th>
+          <th><b>Destination</b></th>
+          <th><b>Actions</b></th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>Jane Doe</td>
-          <td>Tetris</td>
-          <td>28-02-2017</td>
-          <td>Let me hack you</td>
-          <td>127.0.0.1</td>
-          <td>127.0.0.1</td>
-          <td><a class="button-permission" href="#">Accept</a></td>
-        </tr>
-        <tr>
-          <td>Jane Doe</td>
-          <td>Tetris</td>
-          <td>28-02-2017</td>
-          <td>Let me hack you</td>
-          <td>127.0.0.1</td>
-          <td>127.0.0.1</td>
-          <td><a class="button button-permission" href="#">Accept</a></td>
-        </tr>
-        <tr>
-          <td>Jane Doe</td>
-          <td>Tetris</td>
-          <td>28-02-2017</td>
-          <td>Let me hack you</td>
-          <td>127.0.0.1</td>
-          <td>127.0.0.1</td>
-          <td><a class="button-permission" href="#">Accept</a></td>
+        <tr ng-repeat="item in queueData">
+          <td>{{item.requestor}}</td>
+          <td >{{item.application}}</td>
+          <td>{{item.summary}}</td>
+          <td>{{item.source_location}}</td>
+          <td>{{item.destination_location}}</td>
+        <td>
+          <button class="btn btn-success" data-toggle="modal" ng-click="accept('/devices')">Review</button>
+          <button class="btn btn-danger" data-toggle="modal" ng-click="accept('/devices')">Cancel</button>
+            </td>
+      </tr>
+
         </tr>
       </tbody>
     </table>

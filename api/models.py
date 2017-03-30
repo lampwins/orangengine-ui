@@ -45,7 +45,7 @@ class ChangeRequest(Base):
     Represents firewall policy change requests. I.e. in the human form,
     "This server needs to talk to this other sever over this port."
 
-    The implementation of a cahnge request is what we are actually trying
+    The implementation of a change request is what we are actually trying
     to automate here...
     """
 
