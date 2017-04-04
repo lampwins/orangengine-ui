@@ -5,12 +5,12 @@
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.dashboard')
-      .controller('DashboardQueueCtrl', DashboardQueueCtrl);
+  angular.module('BlurAdmin.pages.changeRequest')
+      .controller('SummaryCtrl', SummaryCtrl);
 
 
   /** @ngInject */
-  function DashboardQueueCtrl($scope, baConfig, $http, $auth, $location) {
+  function SummaryCtrl($scope, baConfig, $http, $auth, $location) {
 
 
     $http({
@@ -23,10 +23,6 @@
       console.log(response)
       $scope.name = response.statusText;
     });
-
-    $scope.go = function(path) {
-      $location.path(path);
-    };
 
 
 }

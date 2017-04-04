@@ -1,18 +1,21 @@
+
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.changeRequest', [
-    'satellizer',
-    'BlurAdmin.pages.changeRequest.form',
-    ]).config(routeConfig);
+  angular.module('BlurAdmin.pages.changeRequest', ['satellizer'])
+      .config(routeConfig);
 
   /** @ngInject */
   function routeConfig($stateProvider) {
     $stateProvider
         .state('changeRequest', {
           url: '/changeRequest',
-          template : '<ui-view  autoscroll="true" autoscroll-body-top></ui-view>',
-          abstract: true
+          templateUrl: 'app/pages/changeRequest/changeRequest.html',
+          title: 'Change Request',
+          sidebarMeta: {
+            icon: 'ion-android-home',
+            order: 0,
+          },
         });
   }
 

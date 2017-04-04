@@ -66,7 +66,7 @@
                                     <input type="text" class="form-control" id="mappingInstances[$index].zoneName" name="mappingInstances[$index].zoneName" placeholder="Zone Name" ng-model="devicesNewVm.mappingInstances[$index].zoneName" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
-                                <div class="form-group col-md-5" 
+                                <div class="form-group col-md-5"
                                         ng-class="{'has-error': devicesNewVm.mappingInstances[$index].network.$invalid && (devicesNewVm.mappingInstances[$index].network.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
                                     <input type="text" class="form-control" id="mappingInstances[$index].network" name="mappingInstances[$index].network" placeholder="Network (CIDR)" ng-model="devicesNewVm.mappingInstances[$index].network" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
                                     <span class="help-block error-block basic-block">Required</span>
@@ -96,15 +96,15 @@
                                     <input type="text" class="form-control" id="mappingRulesInstances[$index].sourceZoneName" name="mappingRulesInstances[$index].sourceZoneName" placeholder="Src Zone Name" ng-model="devicesNewVm.mappingRulesInstances[$index].sourceZoneName" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
-                                <div class="form-group col-md-3" 
+                                <div class="form-group col-md-3"
                                         ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].destinationNetwork.$invalid && (devicesNewVm.mappingRulesInstances[$index].destinationNetwork.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationNetwork" name="mappingRulesInstances[$index].destinationNetwork" placeholder="Dst Network (CIDR)" 
+                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationNetwork" name="mappingRulesInstances[$index].destinationNetwork" placeholder="Dst Network (CIDR)"
                                             ng-model="devicesNewVm.mappingRulesInstances[$index].destinationNetwork" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
                                 <div class="form-group has-feedback col-md-3"
                                         ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].destinationZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].destinationZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationZoneName" name="mappingRulesInstances[$index].destinationZoneName" placeholder="Dst Zone Name" 
+                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationZoneName" name="mappingRulesInstances[$index].destinationZoneName" placeholder="Dst Zone Name"
                                             ng-model="devicesNewVm.mappingRulesInstances[$index].destinationZoneName" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
