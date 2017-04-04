@@ -24,6 +24,10 @@
       $scope.name = response.statusText;
     });
 
+    $scope.go = function(path) {
+      $location.path(path);
+    };
+
 
 }
 })();
