@@ -65,6 +65,15 @@ class ChangeRequest(Base):
     status = db.Column(db.Enum(StateOptions), default=StateOptions.open)
 
 
+location_mapping_table = db.Table('location_mapping_table',
+                                  db.Column('device_id', db.Integer,db.ForeignKey('device.id'),
+                                    nullable=False),
+                                  db.Column('location_id',db.Integer,db.ForeignKey('location.id'),
+                                    nullable=False),
+                                  db.PrimaryKeyConstraint('device_id', 'location_id')
+                                  )
+
+
 class Device(Base):
     """Device model
 
@@ -91,6 +100,7 @@ class Device(Base):
                                          cascade="all,delete",)
     supplemental_device_params = db.relationship('SupplementalDeviceParam', backref='device',
                                                  lazy='dynamic', cascade="all,delete",)
+    locations = db.relationship('Location', secondary=location_mapping_table, backref='device')
     __table_args__ = (db.UniqueConstraint('hostname', name='_hostname_uc'),
                      )
 
@@ -100,6 +110,17 @@ class Device(Base):
         data.pop('password')
         data.pop('apikey')
         return data
+
+
+class Location(Base):
+    """Location Model
+
+    A location represents a region within a network. Locations allow us to map network
+    locations to devices
+    """
+
+    __tablename__ = 'location'
+    name = db.Column(db.String(255), nullable=False)
 
 
 class SupplementalDeviceParam(Base):

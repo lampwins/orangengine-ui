@@ -5,7 +5,7 @@ from flask import jsonify, request, abort
 from api import app, db
 from api.auth import auth_token_required
 from api.models import ChangeRequest, Device, ZoneMapping, ZoneMappingRule
-from api.models import SupplementalDeviceParam
+from api.models import SupplementalDeviceParam, Location
 import netaddr
 from api.async.device import refresh_device, deprovision_device
 from api.async.jobs import generate_job_id, get_job_status
@@ -106,27 +106,40 @@ def devices():
 
     # one-to-many relationships
     if request.method == 'POST' or request.method == 'PUT':
+
         zone_mappings_list = request.json.pop('zone_mappings', [])
         zone_mapping_rules_list = request.json.pop('zone_mapping_rules', [])
         supplemental_device_params_list = request.json.pop('supplemental_device_params', [])
+        location_mappings_list = request.json.pop('locations', [])
+
         if zone_mappings_list:
             request.json['zone_mappings'] = []
             for mapping in zone_mappings_list:
                 zone_mapping = ZoneMapping(**mapping)
                 db.session.add(zone_mapping)
                 request.json['zone_mappings'].append(zone_mapping)
+
         if zone_mapping_rules_list:
             request.json['zone_mapping_rules'] = []
             for mapping_rule in zone_mapping_rules_list:
                 zone_mapping_rule = ZoneMappingRule(**mapping_rule)
                 db.session.add(zone_mapping_rule)
                 request.json['zone_mapping_rules'].append(zone_mapping_rule)
+
         if supplemental_device_params_list:
             request.json['supplemental_device_params'] = []
             for instance in supplemental_device_params_list:
                 supplemental_device_param = SupplementalDeviceParam(**instance)
                 db.session.add(supplemental_device_param)
                 request.json['supplemental_device_params'].append(supplemental_device_param)
+
+        if location_mappings_list:
+            logger.debug('getting location instances from db for mapping')
+            request.json['locations'] = []
+            for location in location_mappings_list:
+                # locations already exist, we are just addeding them to the relationship
+                _location = Location.query.filter_by(id=location).first_or_404()
+                request.json['locations'].append(_location)
 
     # request methods
     if request.method == 'POST':
@@ -175,7 +188,11 @@ def device(id):
 
     elif request.method == 'PATCH':
         for key in request.json.keys():
-            if key != 'created_at' or key != 'modified_at' or key != 'id':
+            if key == 'locations':
+                for location_id in request.json[key]:
+                    location = Location.query.filter_by(id=location_id).first_or_404()
+                    device.locations.append(location)
+            elif key != 'created_at' or key != 'modified_at' or key != 'id':
                 setattr(device, key, request.json[key])
         db.session.commit()
         return data_results('Patched device %d' % id)
@@ -191,6 +208,55 @@ def device(id):
         db.session.commit()
         deprovision_device.delay(hostname)
         return data_results('Deleted device %d' % id)
+
+@app.route('/v1.0/locations/', methods=['POST', 'GET'])
+@auth_token_required
+def locations():
+
+    if request.method == 'POST':
+        new_location = Location(**request.json)
+        db.session.add(new_location)
+        db.session.commit()
+        return data_results("success")
+
+    elif request.method == 'GET':
+        deleted = request.args.get('deleted', False)
+        result_set = Location.query.filter_by(deleted=deleted).all()
+        serialized_list = []
+        for obj in result_set:
+            serialized_list.append(obj.serialize())
+        return data_results(serialized_list)
+
+@app.route('/v1.0/locations/<int:id>/', methods=['GET', 'PUT', 'PATCH', 'DELETE'])
+@auth_token_required
+def location(id):
+
+    # some weird session thing?
+    location = Location.query.filter(Location.id==id).first_or_404()
+
+    if request.method == 'GET':
+        return data_results(location.serialize())
+
+    elif request.method == 'PUT':
+        # not implemented
+        abort(501)
+
+    elif request.method == 'PATCH':
+        for key in request.json.keys():
+            if key != 'created_at' or key != 'modified_at' or key != 'id':
+                setattr(location, key, request.json[key])
+        db.session.commit()
+        return data_results('Patched location %d' % id)
+
+    elif request.method == 'DELETE':
+        if request.args.get('hard', False):
+            # hard delete (delete from db)
+            db.session.delete(location)
+        else:
+            # soft delete (set the deleted flag)
+            location.deleted = True
+        db.session.commit()
+        return data_results('Deleted location %d' % id)
 
 @app.route('/v1.0/zone_mappings/', methods=['POST', 'GET'])
 @auth_token_required
