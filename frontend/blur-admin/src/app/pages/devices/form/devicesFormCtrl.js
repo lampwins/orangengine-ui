@@ -10,6 +10,19 @@
     var vm = this;
 
     vm.deviceInfo = {};
+    vm.locationsForm = {};
+
+    vm.locationModels = [];
+    $http({
+      method: 'GET',
+      url: '/api/v1.0/locations/'
+    }).then(function successCallback(response) {
+        console.log(response)
+        vm.locationModels["models"] = response.data.data;
+      }, function errorCallback(response) {
+        console.log(response)
+      }
+    );
 
     vm.deviceTypeSelectItems = [
       {label: 'Juniper SRX', value: 'juniper_srx'},
@@ -37,6 +50,18 @@
     vm.removeZoneMappingRule = function($event,index){
       if($event.which == 1){
         vm.mappingRulesInstances.splice(index, 1);
+      }
+    };
+
+    vm.locations = []
+    vm.addNewLocation = function(){
+      var instance = {name:"", id:""};
+      vm.locations.splice(vm.locations.length,0,instance);
+    };
+
+    vm.removeLocation = function($event,index){
+      if($event.which == 1){
+        vm.locations.splice(index, 1);
       }
     };
 
@@ -74,6 +99,11 @@
         })
       }
 
+      var locationIds = []
+      vm.locations.forEach(function(element) {
+        locationIds.push(element.id);
+      }, this);
+
       $http({
         method: 'PUT',
         url: '/api/v1.0/devices/',
@@ -86,7 +116,8 @@
           apikey: vm.deviceInfo.apikey || null,
           zone_mappings: zone_mappings,
           zone_mapping_rules: zone_mapping_rules,
-          supplemental_device_params: supplemental_device_params
+          supplemental_device_params: supplemental_device_params,
+          locations: locationIds
         }
       }).then(function successCallback(response) {
           baProgressModal.setProgress(100);

@@ -4,7 +4,8 @@
   angular.module('BlurAdmin.pages.devices', [
     'satellizer',
     'BlurAdmin.pages.devices.form',
-    'BlurAdmin.pages.devices.list'
+    'BlurAdmin.pages.devices.list',
+    'BlurAdmin.pages.devices.locations'
     ]).config(routeConfig);
 
   /** @ngInject */
@@ -13,7 +14,12 @@
         .state('devices', {
           url: '/devices',
           template : '<ui-view  autoscroll="true" autoscroll-body-top></ui-view>',
-          abstract: true
+          abstract: true,
+          title: 'Devices',
+          sidebarMeta: {
+            icon: 'ion-fireball',
+            order: 1,
+          },
         });
   }
 

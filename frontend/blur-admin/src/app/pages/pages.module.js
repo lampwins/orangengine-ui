@@ -23,11 +23,11 @@
 
     $urlRouterProvider.otherwise('/dashboard');
 
-    baSidebarServiceProvider.addStaticItem({
-      title: 'Devices',
-      icon: 'ion-fireball',
-      stateRef: 'devices.list'
-    });
+    //baSidebarServiceProvider.addStaticItem({
+    //  title: 'Devices',
+    //  icon: 'ion-fireball',
+    //  stateRef: 'devices.list'
+    //});
 
   };
 

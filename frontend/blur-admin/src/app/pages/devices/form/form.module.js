@@ -11,6 +11,10 @@
           url: '/form',
           title: 'New Device',
           templateUrl: 'app/pages/devices/form/form.html',
+          sidebarMeta: {
+            icon: 'ion-ios-location',
+            order: 2,
+          },
         });
   }
 

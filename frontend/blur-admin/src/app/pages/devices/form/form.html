@@ -26,13 +26,13 @@
                                 </ui-select>
                                 <span class="help-block error-block basic-block">Device type for driver selection</span>
                             </div>
-                            <div class="form-group has-feedback"
+                            <!--<div class="form-group has-feedback"
                                     ng-class="{'has-error': devicesNewVm.deviceInfoForm.panoramaDevGroup.$invalid && (devicesNewVm.deviceInfoForm.panoramaDevGroup.$dirty || devicesNewVm.deviceInfoForm.$submitted)}"
                                     ng-show="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
                                 <input type="text" class="form-control" id="panoramaDevGroup" name="panoramaDevGroup" placeholder="Panorama Device Group" ng-model="devicesNewVm.deviceInfo.panoramaDevGroup" ng-pattern="devicesNewVm.validIpOr952Hostname"
                                         ng-required="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
                                 <span class="help-block error-block basic-block">Panorama Device Group Name</span>
-                            </div>
+                            </div>-->
                             <div class="form-group has-feedback"
                                     ng-class="{'has-error': devicesNewVm.deviceInfoForm.hostname.$invalid && (devicesNewVm.deviceInfoForm.hostname.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
                                 <input type="text" class="form-control" id="hostname" name="hostname" placeholder="Hostname or IP" ng-model="devicesNewVm.deviceInfo.hostname" ng-pattern="devicesNewVm.validIpOr952Hostname" required>
@@ -50,6 +50,41 @@
                             <div class="form-group" ng-class="{'has-error': devicesNewVm.deviceInfoForm.apikey.$invalid && (devicesNewVm.deviceInfoForm.apikey.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
                                 <input type="text" class="form-control" id="apikey" name="apikey" placeholder="API Key" ng-model="devicesNewVm.deviceInfo.apikey">
                                 <span class="help-block error-block basic-block">API key used to connect, if supported by the device</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </ba-wizard-step>
+            <ba-wizard-step title="Locations" form="devicesNewVm.locationsForm">
+                <form name="devicesNewVm.locationsForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.locations track by $index">
+
+                                <div class="form-group has-feedback col-md-10"
+                                        ng-class="{'has-error': devicesNewVm.locations[$index].$invalid && (devicesNewVm.locations[$index].$dirty || devicesNewVm.locationsForm.$submitted)}">
+                                    <ui-select ng-model="devicesNewVm.locations[$index]"
+                                            class="btn-group bootstrap-select form-control"
+                                            ng-disabled="false"
+                                            append-to-body="true"
+                                            search-enabled="false">
+                                        <ui-select-match placeholder="Location">
+                                            <span> {{$select.selected.name}}</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="model in devicesNewVm.locationModels['models'] | filter: $select.search">
+                                            <span ng-bind-html="model.name"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                    <span class="help-block error-block basic-block">Network Location</span>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <button type="button" class="btn btn-primary" ng-click="devicesNewVm.removeLocation($event,$index)">Remove</button>
+                                </div>
+
+                            </fieldset>
+                            <div class="col-md-6 col-md-offset-3">
+                                <button type="button" class="btn btn-primary" ng-click="devicesNewVm.addNewLocation()">Add Location</button>
                             </div>
                         </div>
                     </div>
@@ -162,6 +197,16 @@
                         </div>
                         <div class="col-md-8">
                             <p>{{ devicesNewVm.deviceInfo.username }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="col-md-4 form-horizontal" style="text-align: right;">
+                            <p>Locations:</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div ng-repeat="item in devicesNewVm.locations">
+                                <p>{{ item.name }}</p>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-3">

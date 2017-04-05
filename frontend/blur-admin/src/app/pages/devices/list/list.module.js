@@ -9,12 +9,12 @@
     $stateProvider
         .state('devices.list', {
           url: '/list',
-          title: 'Devices',
+          title: 'Configured Devices',
           templateUrl: 'app/pages/devices/list/list.html',
-          //sidebarMeta: {
-          //  icon: 'ion-fireball',
-          //  order: 1,
-          //},
+          sidebarMeta: {
+            icon: 'ion-fireball',
+            order: 1,
+          },
           controller: 'DevicesListCtrl'
         });
   }

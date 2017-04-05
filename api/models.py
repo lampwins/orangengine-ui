@@ -121,6 +121,8 @@ class Location(Base):
 
     __tablename__ = 'location'
     name = db.Column(db.String(255), nullable=False)
+    __table_args__ = (db.UniqueConstraint('name', name='_name_uc'),
+                     )
 
 
 class SupplementalDeviceParam(Base):

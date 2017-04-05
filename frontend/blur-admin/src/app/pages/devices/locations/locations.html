@@ -1,0 +1,57 @@
+<div class="row" class="ng-scope" ng-controller="LocationsCtrl as vm">
+
+    <div ba-panel class="ng-scope col-md-6">
+        <div class="horizontal-scroll">
+
+            <ul ng-repeat="item in vm.sharedData['locations']">
+                <li ng-class="nowrap">{{item.name}}</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <div ba-panel ba-panel-title="New Location" class="ng-scope col-md-6">
+        <div class="horizontal-scroll">
+            <div>
+                
+                <form ng-submit="vm.submitNew()">
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="vm.newLocationName" placeholder="Location" name="newLocationName" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!--<div>
+    <div ba-pannel ba-panel-title="Locations">
+        <div class="horizontal-scroll">
+            <table class="table">
+            <thead>
+                <tr>
+                    <th>Locations</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in locations">
+                    <td ng-class="nowrap">{{item.name}}</td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        <div>
+            
+            <form>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Location">
+            </div>
+            <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+
+        </div>
+    </div>
+</div>-->
