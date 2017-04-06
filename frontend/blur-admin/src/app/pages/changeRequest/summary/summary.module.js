@@ -10,8 +10,8 @@
       .state('changeRequest.summary', {
         url: '/:id/summary',
         templateUrl: 'app/pages/changeRequest/summary/summary.html',
-          title: 'Summary',
-          controller: "SummaryCtrl"
+        title: 'Summary',
+        controller: "SummaryCtrl"
       });
   }
 })();

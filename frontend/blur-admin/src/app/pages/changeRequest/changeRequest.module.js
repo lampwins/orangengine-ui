@@ -13,10 +13,9 @@
     $stateProvider
         .state('changeRequest', {
           url: '/changeRequest',
-          templateUrl: '<ui-view  autoscroll="true" autoscroll-body-top></ui-view>',
+          template: '<ui-view  autoscroll="true" autoscroll-body-top></ui-view>',
           abstract: true,
           title: 'Change Request',
-
         });
 
 
