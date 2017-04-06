@@ -1,194 +1,53 @@
-<div ba-panel class="ng-scope">
-    <div ng-controller="DevicesFormCtrl as devicesNewVm">
-        <ba-wizard>
-            <ba-wizard-step title="Device Info" form="devicesNewVm.deviceInfoForm">
-                <form name="devicesNewVm.deviceInfoForm" novalidate>
-                    <div class="row">
-                        <div class="col-md-6 col-md-offset-3">
-                            <div class="form-group has-feedback"
-                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.common_name.$invalid && (devicesNewVm.deviceInfoForm.common_name.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
-                                <input type="text" class="form-control" id="common_name" name="common_name" placeholder="Common Name" ng-model="devicesNewVm.deviceInfo.common_name" required>
-                                <span class="help-block error-block basic-block">The colloquial name for the device</span>
-                            </div>
-                            <div class="form-group has-feedback"
-                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.deviceTypeItem.$invalid && (devicesNewVm.deviceInfoForm.deviceTypeItem.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
-                                <ui-select ng-model="devicesNewVm.deviceInfo.deviceTypeItem"
-                                        class="btn-group bootstrap-select form-control"
-                                        ng-disabled="false"
-                                        append-to-body="true"
-                                        search-enabled="false">
-                                    <ui-select-match placeholder="Device Type">
-                                        <span> {{$select.selected.label}}</span>
-                                    </ui-select-match>
-                                    <ui-select-choices repeat="deviceTypeItem in devicesNewVm.deviceTypeSelectItems | filter: $select.search">
-                                        <span ng-bind-html="deviceTypeItem.label"></span>
-                                    </ui-select-choices>
-                                </ui-select>
-                                <span class="help-block error-block basic-block">Device type for driver selection</span>
-                            </div>
-                            <div class="form-group has-feedback"
-                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.panoramaDevGroup.$invalid && (devicesNewVm.deviceInfoForm.panoramaDevGroup.$dirty || devicesNewVm.deviceInfoForm.$submitted)}"
-                                    ng-show="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
-                                <input type="text" class="form-control" id="panoramaDevGroup" name="panoramaDevGroup" placeholder="Panorama Device Group" ng-model="devicesNewVm.deviceInfo.panoramaDevGroup" ng-pattern="devicesNewVm.validIpOr952Hostname"
-                                        ng-required="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
-                                <span class="help-block error-block basic-block">Panorama Device Group Name</span>
-                            </div>
-                            <div class="form-group has-feedback"
-                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.hostname.$invalid && (devicesNewVm.deviceInfoForm.hostname.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
-                                <input type="text" class="form-control" id="hostname" name="hostname" placeholder="Hostname or IP" ng-model="devicesNewVm.deviceInfo.hostname" ng-pattern="devicesNewVm.validIpOr952Hostname" required>
-                                <span class="help-block error-block basic-block">Device hostname or IP</span>
-                            </div>
-                            <div class="form-group has-feedback"
-                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.username.$invalid && (devicesNewVm.deviceInfoForm.username.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
-                                <input type="text" class="form-control" id="username" name="username" placeholder="Username" ng-model="devicesNewVm.deviceInfo.username"  required>
-                                <span class="help-block error-block basic-block">Credentials for connecting to the device</span>
-                            </div>
-                            <div class="form-group" ng-class="{'has-error': devicesNewVm.deviceInfoForm.password.$invalid && (devicesNewVm.deviceInfoForm.password.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Password" ng-model="devicesNewVm.deviceInfo.password">
-                                <span class="help-block error-block basic-block">Credentials for connecting to the device</span>
-                            </div>
-                            <div class="form-group" ng-class="{'has-error': devicesNewVm.deviceInfoForm.apikey.$invalid && (devicesNewVm.deviceInfoForm.apikey.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
-                                <input type="text" class="form-control" id="apikey" name="apikey" placeholder="API Key" ng-model="devicesNewVm.deviceInfo.apikey">
-                                <span class="help-block error-block basic-block">API key used to connect, if supported by the device</span>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </ba-wizard-step>
-            <ba-wizard-step title="Zone Mappings" form="devicesNewVm.deviceZoneMappingsForm">
-                <form name="devicesNewVm.deviceZoneMappingsForm" novalidate>
-                    <div class="row">
-                        <div class="col-md-6 col-md-offset-3">
-                            <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.mappingInstances track by $index">
-
-                                <div class="form-group has-feedback col-md-5"
-                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].zoneName.$invalid && (devicesNewVm.mappingInstances[$index].zoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingInstances[$index].zoneName" name="mappingInstances[$index].zoneName" placeholder="Zone Name" ng-model="devicesNewVm.mappingInstances[$index].zoneName" required>
-                                    <span class="help-block error-block basic-block">Required</span>
-                                </div>
-                                <div class="form-group col-md-5"
-                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].network.$invalid && (devicesNewVm.mappingInstances[$index].network.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingInstances[$index].network" name="mappingInstances[$index].network" placeholder="Network (CIDR)" ng-model="devicesNewVm.mappingInstances[$index].network" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
-                                    <span class="help-block error-block basic-block">Required</span>
-                                </div>
 
 
-                                <div class="form-group col-md-2">
-                                    <button type="button" class="btn btn-primary" ng-click="devicesNewVm.removeZoneMapping($event,$index)">Remove</button>
-                                </div>
-
-                            </fieldset>
-                            <div class="col-md-6 col-md-offset-3">
-                                <button type="button" class="btn btn-primary" ng-click="devicesNewVm.addNewZoneMapping()">Add Zone Mapping</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </ba-wizard-step>
-            <ba-wizard-step title="Zone Mapping Rules" form="devicesNewVm.deviceZoneMappingRulesForm">
-                <form name="devicesNewVm.deviceZoneMappingRulesForm" novalidate>
-                    <div class="row">
-                        <div class="col-md-10 col-md-offset-2">
-                            <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.mappingRulesInstances track by $index">
-
-                                <div class="form-group has-feedback col-md-3"
-                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].sourceZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].sourceZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].sourceZoneName" name="mappingRulesInstances[$index].sourceZoneName" placeholder="Src Zone Name" ng-model="devicesNewVm.mappingRulesInstances[$index].sourceZoneName" required>
-                                    <span class="help-block error-block basic-block">Required</span>
-                                </div>
-                                <div class="form-group col-md-3"
-                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].destinationNetwork.$invalid && (devicesNewVm.mappingRulesInstances[$index].destinationNetwork.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationNetwork" name="mappingRulesInstances[$index].destinationNetwork" placeholder="Dst Network (CIDR)"
-                                            ng-model="devicesNewVm.mappingRulesInstances[$index].destinationNetwork" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
-                                    <span class="help-block error-block basic-block">Required</span>
-                                </div>
-                                <div class="form-group has-feedback col-md-3"
-                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].destinationZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].destinationZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationZoneName" name="mappingRulesInstances[$index].destinationZoneName" placeholder="Dst Zone Name"
-                                            ng-model="devicesNewVm.mappingRulesInstances[$index].destinationZoneName" required>
-                                    <span class="help-block error-block basic-block">Required</span>
-                                </div>
-
-
-                                <div class="form-group col-md-2">
-                                    <button type="button" class="btn btn-primary" ng-click="devicesNewVm.removeZoneMappingRule($event,$index)">Remove</button>
-                                </div>
-
-                            </fieldset>
-                            <div class="col-md-10 col-md-offset-3">
-                                <button type="button" class="btn btn-primary" ng-click="devicesNewVm.addNewZoneMappingRule()">Add Zone Mapping Rule</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </ba-wizard-step>
-            <ba-wizard-step title="Finish">
-                <form class="form-horizontal" name="devicesNewVm.finishForm" novalidate>
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Common Name:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ devicesNewVm.deviceInfo.common_name }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Device Type:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ devicesNewVm.deviceInfo.deviceTypeItem.label }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3" ng-show="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Panorama Device Group:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ devicesNewVm.deviceInfo.panoramaDevGroup }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Hostname or IP:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ devicesNewVm.deviceInfo.hostname }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Username:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ devicesNewVm.deviceInfo.username }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Zone Mappings:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <div ng-repeat="item in devicesNewVm.mappingInstances">
-                                <p>{{ item.zoneName }} -> {{ item.network }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Zone Mapping Rules:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <div ng-repeat="item in devicesNewVm.mappingRulesInstances">
-                                <p>{{ item.sourceZoneName }} -> {{ item.destinationNetwork }} = {{ item.destinationZoneName }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-md-offset-5">
-                        <button type="submit" class="btn btn-primary" data-toggle="modal" ng-click="devicesNewVm.submitForm()">Finish</button>
-                    </div>
-                </form>
-            </ba-wizard-step>
-        </ba-wizard>
+<!--
+  <div class="panel panel-default bootstrap-panel">
+    <div class="panel-heading">
+      <h2><font color="#666666"><center>Automation Score</center></font></h2>
     </div>
+    <div class="panel-body footer-panel">
+      <center><h1><font size=100 color="#666666">9<font color="#aaaaaa">/10</font></font></h1></center>
+    </div>
+  </div>
+
+<h2 class="ng-scope">Request Details</h2>
+<div ba-panel>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><b>Requester</b></th>
+          <th><b>Application</b></th>
+          <th><b>Summary</b></th>
+          <th><b>Source</b></th>
+          <th><b>Destination</b></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>john doe</td>
+          <td >egwteg</td>
+          <td>request 2</td>
+          <td>127.0.0.1</td>
+          <td>127.0.0.1</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
+
+
+
+<h2 class="ng-scope">Summary</h2>
+  <div ba-panel>
+    This is where the summary will go. It will be notes about the request. It will not be displayed in the dashboard queue but will appear here.
+</div>
+
+<center>
+  <button class="btn btn-success" data-toggle="modal" ng-click="accept('/devices')">Proceed</button>
+  <button class="btn btn-danger" data-toggle="modal" ng-click="accept('/devices')">Manual Close</button>
+</center>
+
+-->
+
+<div ba-panel ng-controller="SummaryCtrl"><h1>hello</h1></div>

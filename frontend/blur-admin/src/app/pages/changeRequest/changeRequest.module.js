@@ -2,7 +2,10 @@
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.changeRequest', ['satellizer'])
+  angular.module('BlurAdmin.pages.changeRequest', [
+    'BlurAdmin.pages.changeRequest.summary',
+    'satellizer'
+  ])
       .config(routeConfig);
 
   /** @ngInject */
@@ -10,13 +13,12 @@
     $stateProvider
         .state('changeRequest', {
           url: '/changeRequest',
-          templateUrl: 'app/pages/changeRequest/changeRequest.html',
+          template: '<ui-view  autoscroll="true" autoscroll-body-top></ui-view>',
+          abstract: true,
           title: 'Change Request',
-          sidebarMeta: {
-            icon: 'ion-android-home',
-            order: 0,
-          },
         });
+
+
   }
 
 })();
