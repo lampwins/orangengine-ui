@@ -1,6 +1,7 @@
 
-
-<!--
+<div ba-panel ng-controller="SummaryCtrl">
+  <div class="row">
+  <div class="col-md-6 col-md-offset-3">
   <div class="panel panel-default bootstrap-panel">
     <div class="panel-heading">
       <h2><font color="#666666"><center>Automation Score</center></font></h2>
@@ -9,19 +10,21 @@
       <center><h1><font size=100 color="#666666">9<font color="#aaaaaa">/10</font></font></h1></center>
     </div>
   </div>
+</div>
+</div>
 
 <h2 class="ng-scope">Request Details</h2>
 <div ba-panel>
   <div class="table-responsive">
     <table class="table">
       <thead>
-        <tr>
+        <th>
           <th><b>Requester</b></th>
           <th><b>Application</b></th>
           <th><b>Summary</b></th>
           <th><b>Source</b></th>
           <th><b>Destination</b></th>
-        </tr>
+        </th>
       </thead>
       <tbody>
         <tr>
@@ -48,6 +51,4 @@
   <button class="btn btn-danger" data-toggle="modal" ng-click="accept('/devices')">Manual Close</button>
 </center>
 
--->
-
-<div ba-panel ng-controller="SummaryCtrl"><h1>hello</h1></div>
+</div>
