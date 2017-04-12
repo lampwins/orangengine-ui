@@ -1,0 +1,121 @@
+<div ba-panel>
+
+  <div class="row">
+    <div class="col-md-4"><h4 class="ng-scope">SUMMARY</h4></div>
+    <div class="col-md-6">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer et enim sed turpis laoreet pretium eu vitae quam. Ut mauris elit, euismod eu viverra in, auctor at felis. Nunc vehicula mattis dolor ullamcorper molestie. Nam eleifend scelerisque neque tempor semper. Nam dolor massa, sodales ac neque et, congue vulputate sem. Etiam in ante convallis, egestas est a, suscipit nisl. Proin a est eget lectus eleifend ultrices ut id neque. In tristique semper velit a fringilla.</div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-md-4"><h4 class="ng-scope">SOURCE LOCATION</h4></div>
+    <div class="col-md-6">127.0.0.1</div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-md-4"><h4 class="ng-scope">SOURCES</h4></div>
+    <div class="col-md-6">234.0.0.8<br>127.0.0.1<br>349.0.0.2</div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-md-4"><h4 class="ng-scope">DESTINATION LOCATION</h4></div>
+    <div class="col-md-6">127.0.0.1</div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-md-4"><h4 class="ng-scope">SERVICES</h4></div>
+    <div class="col-md-6">Giving you a virus<br>Crashing your computer</div>
+  </div>
+
+  <br>
+  <br>
+
+  <div class="row">
+    <div class="col-md-4"><h4 class="ng-scope">DEVICE</h4></div>
+    <div class="col-md-6">
+      <div class="form-group has-feedback"
+              ng-class="{'has-error': devicesNewVm.deviceInfoForm.deviceTypeItem.$invalid && (devicesNewVm.deviceInfoForm.deviceTypeItem.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+          <ui-select ng-model="devicesNewVm.deviceInfo.deviceTypeItem"
+                  class="btn-group bootstrap-select form-control"
+                  ng-disabled="false"
+                  append-to-body="true"
+                  search-enabled="false">
+              <ui-select-match placeholder="Select Device Type">
+                  <span> {{$select.selected.label}}</span>
+              </ui-select-match>
+              <ui-select-choices repeat="deviceTypeItem in devicesNewVm.deviceTypeSelectItems | filter: $select.search">
+                  <span ng-bind-html="deviceTypeItem.label"></span>
+              </ui-select-choices>
+          </ui-select>
+          <span class="help-block error-block basic-block">Device type for driver selection</span>
+      </div>
+    </div>
+  </div>
+
+    <br>
+
+    <div class="row">
+      <div class="col-md-4"><h4 class="ng-scope">DEVICE GROUP</h4></div>
+      <div class="col-md-6">
+        <div class="form-group has-feedback"
+                ng-class="{'has-error': devicesNewVm.deviceInfoForm.deviceTypeItem.$invalid && (devicesNewVm.deviceInfoForm.deviceTypeItem.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+            <ui-select ng-model="devicesNewVm.deviceInfo.deviceTypeItem"
+                    class="btn-group bootstrap-select form-control"
+                    ng-disabled="false"
+                    append-to-body="true"
+                    search-enabled="false">
+                <ui-select-match placeholder="Select Device Group">
+                    <span> {{$select.selected.label}}</span>
+                </ui-select-match>
+                <ui-select-choices repeat="deviceTypeItem in devicesNewVm.deviceTypeSelectItems | filter: $select.search">
+                    <span ng-bind-html="deviceTypeItem.label"></span>
+                </ui-select-choices>
+            </ui-select>
+            <span class="help-block error-block basic-block">Device type for driver selection</span>
+        </div>
+      </div>
+    </div>
+
+
+    <br>
+
+    <div class="row">
+      <div class="col-md-4"><h4 class="ng-scope">METHOD</h4></div>
+      <div class="col-md-6">
+        <div class="form-group has-feedback"
+                ng-class="{'has-error': devicesNewVm.deviceInfoForm.deviceTypeItem.$invalid && (devicesNewVm.deviceInfoForm.deviceTypeItem.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
+            <ui-select ng-model="devicesNewVm.deviceInfo.deviceTypeItem"
+                    class="btn-group bootstrap-select form-control"
+                    ng-disabled="false"
+                    append-to-body="true"
+                    search-enabled="false">
+                <ui-select-match placeholder="Select Method">
+                    <span> {{$select.selected.label}}</span>
+                </ui-select-match>
+                <ui-select-choices repeat="deviceTypeItem in devicesNewVm.deviceTypeSelectItems | filter: $select.search">
+                    <span ng-bind-html="deviceTypeItem.label"></span>
+                </ui-select-choices>
+            </ui-select>
+            <span class="help-block error-block basic-block">Device type for driver selection</span>
+        </div>
+      </div>
+    </div>
+
+    <br>
+
+    <div class="row">
+      <div class="col-md-4"><h4 class="ng-scope">NOTES</h4></div>
+      <div class="col-md-6"><div class="form-group">
+          <textarea placeholder="Add Notes" class="form-control" id="textarea01"></textarea>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
