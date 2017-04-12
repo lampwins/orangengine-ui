@@ -2,7 +2,7 @@
 import datetime
 import jwt
 from api import db, app, bcrypt, logger
-import enum
+from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import CIDR
 
 
@@ -49,12 +49,6 @@ class ChangeRequest(Base):
     to automate here...
     """
 
-    class StateOptions(enum.Enum):
-        """Enum options for state"""
-        open = 'open'
-        closed = 'closed'
-        completed = 'completed'
-
     __tablename__ = 'change_request'
     summary = db.Column(db.String(255))
     requestor = db.Column(db.String(255))
@@ -62,7 +56,7 @@ class ChangeRequest(Base):
     source_location = db.Column(db.String(255))
     destination_location = db.Column(db.String(255))
     action = db.Column(db.String(255))
-    status = db.Column(db.Enum(StateOptions), default=StateOptions.open)
+    status = db.Column(db.String(20), default='open')
 
 
 location_mapping_table = db.Table('location_mapping_table',
@@ -81,17 +75,12 @@ class Device(Base):
     device in orangengine.
     """
 
-    class DriverOptions(enum.Enum):
-        """Enum options for device_type for driver selection in orangengine"""
-        juniper_srx = 'juniper_srx'
-        palo_alto_panorama = 'palo_alto_panorama'
-
     __tablename__ = 'device'
     username = db.Column(db.String(255))
     password = db.Column(db.String(255))
     apikey = db.Column(db.String(255), default=None)
     hostname = db.Column(db.String(255))
-    driver = db.Column(db.Enum(DriverOptions))
+    driver = db.Column(db.String(30))
     refresh_interval = db.Column(db.Integer(), default=60)
     common_name = db.Column(db.String(255))
     zone_mappings = db.relationship('ZoneMapping', backref='device', lazy='dynamic',

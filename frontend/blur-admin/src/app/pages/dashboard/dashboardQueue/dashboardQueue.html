@@ -1,6 +1,6 @@
-<div class="queue-container" ng-class="{'transparent': transparent}">
-  <div class="table-responsive">
-    <table class="table">
+<div class="queue-container, ng-scope" ng-class="{'transparent': transparent}" ng-view>
+  <div class="horizontal-scroll">
+    <table class="table table-hover">
       <thead>
         <tr>
           <th><b>Requester</b></th>
@@ -11,24 +11,20 @@
           <th><b>Actions</b></th>
         </tr>
       </thead>
-        <tr ng-repeat="item in queueData">
+      <tbody>
+        <tr ng-repeat="item in vm.queueData track by item.id">
           <td>{{item.requestor}}</td>
-          <td >{{item.application}}</td>
+          <td>{{item.application}}</td>
           <td>{{item.summary}}</td>
           <td>{{item.source_location}}</td>
           <td>{{item.destination_location}}</td>
-        <td>
-          <button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest')">Review</button>
-          <button class="btn btn-danger" data-toggle="modal" ng-click="accept('/devices')">Cancel</button>
-            </td>
-      </tr>
-
+          <td>
+            <button class="btn btn-success btn-xs" data-toggle="modal" ng-click="vm.go(item.id)">Review</button>
+            <button class="btn btn-danger btn-xs" data-toggle="modal" ng-click="vm.cancel(item.id)">Cancel</button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 <!-- end main page content -->
-
-</div>
-</div>

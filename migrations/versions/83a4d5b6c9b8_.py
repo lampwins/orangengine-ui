@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 90d65d0be9e9
+Revision ID: 83a4d5b6c9b8
 Revises: 
-Create Date: 2017-03-27 00:54:16.164529
+Create Date: 2017-04-11 17:10:02.737521
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '90d65d0be9e9'
+revision = '83a4d5b6c9b8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -39,7 +39,7 @@ def upgrade():
     sa.Column('source_location', sa.String(length=255), nullable=True),
     sa.Column('destination_location', sa.String(length=255), nullable=True),
     sa.Column('action', sa.String(length=255), nullable=True),
-    sa.Column('status', sa.Enum('closed', 'completed', 'open', name='stateoptions'), nullable=True),
+    sa.Column('status', sa.String(length=20), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('device',
@@ -51,11 +51,20 @@ def upgrade():
     sa.Column('password', sa.String(length=255), nullable=True),
     sa.Column('apikey', sa.String(length=255), nullable=True),
     sa.Column('hostname', sa.String(length=255), nullable=True),
-    sa.Column('driver', sa.Enum('juniper_srx', 'palo_alto_panorama', name='driveroptions'), nullable=True),
+    sa.Column('driver', sa.String(length=30), nullable=True),
     sa.Column('refresh_interval', sa.Integer(), nullable=True),
     sa.Column('common_name', sa.String(length=255), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('hostname', name='_hostname_uc')
+    )
+    op.create_table('location',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('modified_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted', sa.Boolean(), nullable=True),
+    sa.Column('name', sa.String(length=255), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('name', name='_name_uc')
     )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -67,6 +76,13 @@ def upgrade():
     sa.Column('admin', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
+    )
+    op.create_table('location_mapping_table',
+    sa.Column('device_id', sa.Integer(), nullable=False),
+    sa.Column('location_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['device_id'], ['device.id'], ),
+    sa.ForeignKeyConstraint(['location_id'], ['location.id'], ),
+    sa.PrimaryKeyConstraint('device_id', 'location_id')
     )
     op.create_table('supplemental_device_param',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -113,7 +129,9 @@ def downgrade():
     op.drop_table('zone_mapping_rules')
     op.drop_table('zone_mapping')
     op.drop_table('supplemental_device_param')
+    op.drop_table('location_mapping_table')
     op.drop_table('user')
+    op.drop_table('location')
     op.drop_table('device')
     op.drop_table('change_request')
     op.drop_table('blacklist_token')

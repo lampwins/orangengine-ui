@@ -13,6 +13,7 @@
     return {
       restrict: 'EA',
       controller: 'DashboardQueueCtrl',
+      controllerAs: 'vm',
       templateUrl: 'app/pages/dashboard/dashboardQueue/dashboardQueue.html'
     };
   }

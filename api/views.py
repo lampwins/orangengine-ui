@@ -64,8 +64,7 @@ def change_requests():
         deleted = request.args.get('deleted', False)
         if status:
             # only with a specified state
-            result_set = ChangeRequest.query.filter_by(deleted=deleted, status=getattr(
-                                                    ChangeRequest.StateOptions, status)).all()
+            result_set = ChangeRequest.query.filter_by(deleted=deleted, status=status).all()
         else:
             # all change requests
             result_set = ChangeRequest.query.filter_by(deleted=deleted).all()
