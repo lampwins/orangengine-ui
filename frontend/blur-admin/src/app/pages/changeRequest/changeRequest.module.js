@@ -4,6 +4,7 @@
 
   angular.module('BlurAdmin.pages.changeRequest', [
     'BlurAdmin.pages.changeRequest.summary',
+    'BlurAdmin.pages.changeRequest.environment',
     'satellizer'
   ])
       .config(routeConfig);
