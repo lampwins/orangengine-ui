@@ -1,5 +1,8 @@
 <div ba-panel class="ng-scope">
     <div ng-controller="DevicesFormCtrl as devicesNewVm">
+
+        <!-- BEGIN DEVICE INFO -->
+
         <ba-wizard>
             <ba-wizard-step title="Device Info" form="devicesNewVm.deviceInfoForm">
                 <form name="devicesNewVm.deviceInfoForm" novalidate>
@@ -26,13 +29,6 @@
                                 </ui-select>
                                 <span class="help-block error-block basic-block">Device type for driver selection</span>
                             </div>
-                            <!--<div class="form-group has-feedback"
-                                    ng-class="{'has-error': devicesNewVm.deviceInfoForm.panoramaDevGroup.$invalid && (devicesNewVm.deviceInfoForm.panoramaDevGroup.$dirty || devicesNewVm.deviceInfoForm.$submitted)}"
-                                    ng-show="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
-                                <input type="text" class="form-control" id="panoramaDevGroup" name="panoramaDevGroup" placeholder="Panorama Device Group" ng-model="devicesNewVm.deviceInfo.panoramaDevGroup" ng-pattern="devicesNewVm.validIpOr952Hostname"
-                                        ng-required="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
-                                <span class="help-block error-block basic-block">Panorama Device Group Name</span>
-                            </div>-->
                             <div class="form-group has-feedback"
                                     ng-class="{'has-error': devicesNewVm.deviceInfoForm.hostname.$invalid && (devicesNewVm.deviceInfoForm.hostname.$dirty || devicesNewVm.deviceInfoForm.$submitted)}">
                                 <input type="text" class="form-control" id="hostname" name="hostname" placeholder="Hostname or IP" ng-model="devicesNewVm.deviceInfo.hostname" ng-pattern="devicesNewVm.validIpOr952Hostname" required>
@@ -55,15 +51,66 @@
                     </div>
                 </form>
             </ba-wizard-step>
+
+            <!-- END DEVICE INFO -->
+
+            <!-- BEGIN DEVICE PROFILES -->
+
+            <ba-wizard-step title="Profiles" form="devicesNewVm.deviceProfilesForm">
+                <form name="devicesNewVm.deviceProfilesForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.deviceProfileInstances track by $index">
+
+                                <div class="form-group has-feedback col-md-10"
+                                        ng-class="{'has-error': devicesNewVm.deviceProfileInstances[$index].$invalid && (devicesNewVm.deviceProfileInstances[$index].$dirty || devicesNewVm.deviceProfilesForm.$submitted)}">
+                                    <input type="text" class="form-control" id="deviceProfileInstances[$index].name" name="deviceProfileInstances[$index].name" placeholder="Profile Name" ng-model="devicesNewVm.deviceProfileInstances[$index]"  required>
+                                    <span class="help-block error-block basic-block">Device Profile Name</span>
+                                </div>
+
+                                <div class="form-group col-md-2">
+                                    <button type="button" class="btn btn-primary" ng-click="devicesNewVm.removeDeviceProfile($event,$index)">Remove</button>
+                                </div>
+
+                            </fieldset>
+                            <div class="col-md-6 col-md-offset-3">
+                                <button type="button" class="btn btn-primary" ng-click="devicesNewVm.addNewDeviceProfile()">Add Device Profile</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </ba-wizard-step>
+
+            <!-- END DEVICE PROFILES -->
+
+            <!-- BEGIN LOCATIONS -->
+
             <ba-wizard-step title="Locations" form="devicesNewVm.locationsForm">
                 <form name="devicesNewVm.locationsForm" novalidate>
                     <div class="row">
                         <div class="col-md-6 col-md-offset-3">
                             <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.locations track by $index">
 
-                                <div class="form-group has-feedback col-md-10"
+                                <div class="form-group has-feedback col-md-5"
                                         ng-class="{'has-error': devicesNewVm.locations[$index].$invalid && (devicesNewVm.locations[$index].$dirty || devicesNewVm.locationsForm.$submitted)}">
-                                    <ui-select ng-model="devicesNewVm.locations[$index]"
+                                    <ui-select ng-model="devicesNewVm.locations[$index].profile"
+                                            class="btn-group bootstrap-select form-control"
+                                            ng-disabled="false"
+                                            append-to-body="true"
+                                            search-enabled="false">
+                                        <ui-select-match placeholder="Profile">
+                                            <span> {{$select.selected}}</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="profile in devicesNewVm.deviceProfileInstances | filter: $select.search">
+                                            <span ng-bind-html="profile"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                    <span class="help-block error-block basic-block">Device Profile</span>
+                                </div>
+
+                                <div class="form-group has-feedback col-md-5"
+                                        ng-class="{'has-error': devicesNewVm.locations[$index].$invalid && (devicesNewVm.locations[$index].$dirty || devicesNewVm.locationsForm.$submitted)}">
+                                    <ui-select ng-model="devicesNewVm.locations[$index].location"
                                             class="btn-group bootstrap-select form-control"
                                             ng-disabled="false"
                                             append-to-body="true"
@@ -90,20 +137,43 @@
                     </div>
                 </form>
             </ba-wizard-step>
+
+            <!-- END LOCATIONS -->
+
+            <!-- BEGIN ZONE MAPPINGS -->
+
             <ba-wizard-step title="Zone Mappings" form="devicesNewVm.deviceZoneMappingsForm">
                 <form name="devicesNewVm.deviceZoneMappingsForm" novalidate>
                     <div class="row">
-                        <div class="col-md-6 col-md-offset-3">
+                        <div class="col-md-8 col-md-offset-3">
                             <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.mappingInstances track by $index">
 
-                                <div class="form-group has-feedback col-md-5"
-                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].zoneName.$invalid && (devicesNewVm.mappingInstances[$index].zoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingInstances[$index].zoneName" name="mappingInstances[$index].zoneName" placeholder="Zone Name" ng-model="devicesNewVm.mappingInstances[$index].zoneName" required>
+                                <div class="form-group has-feedback col-md-3"
+                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].$invalid && (devicesNewVm.mappingInstances[$index].$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
+                                    <ui-select ng-model="devicesNewVm.mappingInstances[$index].profile"
+                                            class="btn-group bootstrap-select form-control"
+                                            ng-disabled="false"
+                                            append-to-body="true"
+                                            search-enabled="false">
+                                        <ui-select-match placeholder="Profile">
+                                            <span> {{$select.selected}}</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="profile in devicesNewVm.deviceProfileInstances | filter: $select.search">
+                                            <span ng-bind-html="profile"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                    <span class="help-block error-block basic-block">Device Profile</span>
+                                </div>
+
+                                <div class="form-group has-feedback col-md-3"
+                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].zoneMapping.zoneName.$invalid && (devicesNewVm.mappingInstances[$index].zoneMapping.zoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
+                                    <input type="text" class="form-control" id="mappingInstances[$index].zoneMapping.zoneName" name="mappingInstances[$index].zoneMapping.zoneName" placeholder="Zone Name" ng-model="devicesNewVm.mappingInstances[$index].zoneMapping.zoneName" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
-                                <div class="form-group col-md-5" 
-                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].network.$invalid && (devicesNewVm.mappingInstances[$index].network.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingInstances[$index].network" name="mappingInstances[$index].network" placeholder="Network (CIDR)" ng-model="devicesNewVm.mappingInstances[$index].network" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
+                                <div class="form-group col-md-3" 
+                                        ng-class="{'has-error': devicesNewVm.mappingInstances[$index].zoneMapping.network.$invalid && (devicesNewVm.mappingInstances[$index].zoneMapping.network.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
+                                    <input type="text" class="form-control" id="mappingInstances[$index].zoneMapping.network" name="mappingInstances[$index].zoneMapping.network" placeholder="Network (CIDR)" ng-model="devicesNewVm.mappingInstances[$index].zoneMapping.network" 
+                                            ng-pattern="devicesNewVm.validIpNetworkRegex" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
 
@@ -120,27 +190,50 @@
                     </div>
                 </form>
             </ba-wizard-step>
+
+            <!-- END ZONE MAPPINGS -->
+
+            <!-- BEGIN ZONE MAPPING RULES -->
+
             <ba-wizard-step title="Zone Mapping Rules" form="devicesNewVm.deviceZoneMappingRulesForm">
                 <form name="devicesNewVm.deviceZoneMappingRulesForm" novalidate>
                     <div class="row">
-                        <div class="col-md-10 col-md-offset-2">
+                        <div class="col-md-12 col-md-offset-1">
                             <fieldset class="form-group has-feedback" ng-repeat="fieldSet in devicesNewVm.mappingRulesInstances track by $index">
 
-                                <div class="form-group has-feedback col-md-3"
-                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].sourceZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].sourceZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].sourceZoneName" name="mappingRulesInstances[$index].sourceZoneName" placeholder="Src Zone Name" ng-model="devicesNewVm.mappingRulesInstances[$index].sourceZoneName" required>
+                                <div class="form-group has-feedback col-md-2"
+                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].$invalid && (devicesNewVm.mappingRulesInstances[$index].$dirty || devicesNewVm.deviceZoneMappingRulesForm.$submitted)}">
+                                    <ui-select ng-model="devicesNewVm.mappingRulesInstances[$index].profile"
+                                            class="btn-group bootstrap-select form-control"
+                                            ng-disabled="false"
+                                            append-to-body="true"
+                                            search-enabled="false">
+                                        <ui-select-match placeholder="Profile">
+                                            <span> {{$select.selected}}</span>
+                                        </ui-select-match>
+                                        <ui-select-choices repeat="profile in devicesNewVm.deviceProfileInstances | filter: $select.search">
+                                            <span ng-bind-html="profile"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                    <span class="help-block error-block basic-block">Device Profile</span>
+                                </div>
+
+                                <div class="form-group has-feedback col-md-2"
+                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.sourceZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.sourceZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
+                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].zoneMappingRule.sourceZoneName" name="mappingRulesInstances[$index].zoneMappingRule.sourceZoneName" placeholder="Src Zone Name"
+                                            ng-model="devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.sourceZoneName" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
-                                <div class="form-group col-md-3" 
-                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].destinationNetwork.$invalid && (devicesNewVm.mappingRulesInstances[$index].destinationNetwork.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationNetwork" name="mappingRulesInstances[$index].destinationNetwork" placeholder="Dst Network (CIDR)" 
-                                            ng-model="devicesNewVm.mappingRulesInstances[$index].destinationNetwork" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
+                                <div class="form-group col-md-2" 
+                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.destinationNetwork.$invalid && (devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.destinationNetwork.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
+                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].zoneMappingRule.destinationNetwork" name="mappingRulesInstances[$index].zoneMappingRule.destinationNetwork" placeholder="Dst Network (CIDR)" 
+                                            ng-model="devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.destinationNetwork" ng-pattern="devicesNewVm.validIpNetworkRegex" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
-                                <div class="form-group has-feedback col-md-3"
-                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].destinationZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].destinationZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
-                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].destinationZoneName" name="mappingRulesInstances[$index].destinationZoneName" placeholder="Dst Zone Name" 
-                                            ng-model="devicesNewVm.mappingRulesInstances[$index].destinationZoneName" required>
+                                <div class="form-group has-feedback col-md-2"
+                                        ng-class="{'has-error': devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.destinationZoneName.$invalid && (devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.destinationZoneName.$dirty || devicesNewVm.deviceZoneMappingsForm.$submitted)}">
+                                    <input type="text" class="form-control" id="mappingRulesInstances[$index].zoneMappingRule.destinationZoneName" name="mappingRulesInstances[$index].zoneMappingRule.destinationZoneName" placeholder="Dst Zone Name" 
+                                            ng-model="devicesNewVm.mappingRulesInstances[$index].zoneMappingRule.destinationZoneName" required>
                                     <span class="help-block error-block basic-block">Required</span>
                                 </div>
 
@@ -157,6 +250,11 @@
                     </div>
                 </form>
             </ba-wizard-step>
+
+            <!-- END ZONE MAPPING RULES -->
+
+            <!-- BEGIN SUMMARY -->
+
             <ba-wizard-step title="Finish">
                 <form class="form-horizontal" name="devicesNewVm.finishForm" novalidate>
                     <div class="col-md-6 col-md-offset-3">
@@ -173,14 +271,6 @@
                         </div>
                         <div class="col-md-8">
                             <p>{{ devicesNewVm.deviceInfo.deviceTypeItem.label }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-md-offset-3" ng-show="devicesNewVm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama'">
-                        <div class="col-md-4 form-horizontal" style="text-align: right;">
-                            <p>Panorama Device Group:</p>
-                        </div>
-                        <div class="col-md-8">
-                            <p>{{ devicesNewVm.deviceInfo.panoramaDevGroup }}</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-md-offset-3">
@@ -201,11 +291,21 @@
                     </div>
                     <div class="col-md-6 col-md-offset-3">
                         <div class="col-md-4 form-horizontal" style="text-align: right;">
+                            <p>Profiles:</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div ng-repeat="item in devicesNewVm.deviceProfileInstances">
+                                <p>{{ item }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="col-md-4 form-horizontal" style="text-align: right;">
                             <p>Locations:</p>
                         </div>
                         <div class="col-md-8">
                             <div ng-repeat="item in devicesNewVm.locations">
-                                <p>{{ item.name }}</p>
+                                <p>{{ item.profile }}: {{ item.location.name }}</p>
                             </div>
                         </div>
                     </div>
@@ -215,7 +315,7 @@
                         </div>
                         <div class="col-md-8">
                             <div ng-repeat="item in devicesNewVm.mappingInstances">
-                                <p>{{ item.zoneName }} -> {{ item.network }}</p>
+                                <p>{{ item.profile }}: {{ item.zoneMapping.zoneName }} -> {{ item.zoneMapping.network }}</p>
                             </div>
                         </div>
                     </div>
@@ -225,7 +325,7 @@
                         </div>
                         <div class="col-md-8">
                             <div ng-repeat="item in devicesNewVm.mappingRulesInstances">
-                                <p>{{ item.sourceZoneName }} -> {{ item.destinationNetwork }} = {{ item.destinationZoneName }}</p>
+                                <p>{{ item.profile }}: {{ item.zoneMappingRule.sourceZoneName }} -> {{ item.zoneMappingRule.destinationNetwork }} = {{ item.zoneMappingRule.destinationZoneName }}</p>
                             </div>
                         </div>
                     </div>
@@ -234,6 +334,9 @@
                     </div>
                 </form>
             </ba-wizard-step>
+
+            <!-- END SUMMARY -->
+
         </ba-wizard>
     </div>
 </div>

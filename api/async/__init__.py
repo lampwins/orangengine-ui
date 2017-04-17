@@ -36,7 +36,7 @@ class OEDeviceFactory(object):
                 'host': device_model.hostname,
                 'username': device_model.username,
                 'password': device_model.password,
-                'device_type': device_model.driver.value,  # this is an enum so we need the value
+                'device_type': device_model.driver,
                 'apikey': device_model.apikey,
             }
 

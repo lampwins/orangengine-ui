@@ -11,6 +11,7 @@
 
     vm.deviceInfo = {};
     vm.locationsForm = {};
+    vm.deviceProfilesForm = {};
 
     vm.locationModels = [];
     $http({
@@ -29,9 +30,22 @@
       {label: 'Palo Alto Panorama', value: 'palo_alto_panorama'},
     ];
 
+    vm.deviceProfileInstances = [""];
+    vm.addNewDeviceProfile = function(){
+      var instance = "";
+      vm.deviceProfileInstances.splice(vm.deviceProfileInstances.length,0,instance);
+      console.log(vm.deviceProfileInstances);
+    };
+
+    vm.removeDeviceProfile = function($event,index){
+      if($event.which == 1){
+        vm.deviceProfileInstances.splice(index, 1);
+      }
+    };
+
     vm.mappingInstances = []
     vm.addNewZoneMapping = function(){
-      var instance = {zoneName:"", network:""};
+      var instance = {profile: "", zoneMapping: {zoneName:"", network:""}};
       vm.mappingInstances.splice(vm.mappingInstances.length,0,instance);
     };
 
@@ -43,7 +57,7 @@
 
     vm.mappingRulesInstances = []
     vm.addNewZoneMappingRule = function(){
-      var instance = {sourceZoneName:"", destinationNetwork:"", destinationZoneName:""};
+      var instance = {profile: "", zoneMappingRule: {sourceZoneName:"", destinationNetwork:"", destinationZoneName:""}};
       vm.mappingRulesInstances.splice(vm.mappingRulesInstances.length,0,instance);
     };
 
@@ -55,7 +69,7 @@
 
     vm.locations = []
     vm.addNewLocation = function(){
-      var instance = {name:"", id:""};
+      var instance = {profile:"", location: {name:"", id:""}};
       vm.locations.splice(vm.locations.length,0,instance);
     };
 
@@ -75,33 +89,39 @@
       baProgressModal.open();
       baProgressModal.setProgress(50);  // hehe
 
-      var zone_mappings = [];
-      vm.mappingInstances.forEach(function(element) {
-        zone_mappings.push({
-          zone_name: element.zoneName, 
-          network: element.network
-        });
-      }, this);
+      var profiles = [];
+      vm.deviceProfileInstances.forEach(function(element) {
 
-      var zone_mapping_rules = [];
-      vm.mappingRulesInstances.forEach(function(element) {
-        zone_mapping_rules.push({
-          source_zone_name: element.sourceZoneName, 
-          destination_network: element.destinationNetwork,
-          destination_zone_name: element.destinationZoneName
-        });
-      }, this);
+        var profileFilter = function(p){
+          return p.profile === element;
+        }
+        
+        var profile_instance = {name: element, zone_mappings: [], zone_mapping_rules: [], locations: []};
 
-      var supplemental_device_params = [];
-      if (vm.deviceInfo.deviceTypeItem.value == 'palo_alto_panorama') {
-        supplemental_device_params.push({
-          device_group: vm.deviceInfo.panoramaDevGroup
-        })
-      }
+        var zone_maps = vm.mappingInstances.filter(profileFilter);
+        zone_maps.forEach(function(e) {
+          profile_instance.zone_mappings.push({
+            zone_name: e.zoneMapping.zoneName, 
+            network: e.zoneMapping.network
+          })
+        }, this);
 
-      var locationIds = []
-      vm.locations.forEach(function(element) {
-        locationIds.push(element.id);
+        var zone_map_rules = vm.mappingRulesInstances.filter(profileFilter);
+        zone_map_rules.forEach(function(e) {
+          profile_instance.zone_mapping_rules.push({
+            source_zone_name: e.zoneMappingRule.sourceZoneName, 
+            destination_network: e.zoneMappingRule.destinationNetwork,
+            destination_zone_name: e.zoneMappingRule.destinationZoneName
+          })
+        }, this);
+
+        var locations = vm.locations.filter(profileFilter);
+        locations.forEach(function(e) {
+          profile_instance.locations.push(e.location.id);
+        }, this);
+
+        profiles.push(profile_instance)
+
       }, this);
 
       $http({
@@ -114,10 +134,7 @@
           driver: vm.deviceInfo.deviceTypeItem.value,
           password: vm.deviceInfo.password || null,
           apikey: vm.deviceInfo.apikey || null,
-          zone_mappings: zone_mappings,
-          zone_mapping_rules: zone_mapping_rules,
-          supplemental_device_params: supplemental_device_params,
-          locations: locationIds
+          device_profiles: profiles
         }
       }).then(function successCallback(response) {
           baProgressModal.setProgress(100);

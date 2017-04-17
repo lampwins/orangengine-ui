@@ -60,11 +60,11 @@ class ChangeRequest(Base):
 
 
 location_mapping_table = db.Table('location_mapping_table',
-                                  db.Column('device_id', db.Integer,db.ForeignKey('device.id'),
-                                    nullable=False),
+                                    db.Column('device_profile_id',
+                                    db.Integer,db.ForeignKey('device_profile.id'), nullable=False),
                                   db.Column('location_id',db.Integer,db.ForeignKey('location.id'),
                                     nullable=False),
-                                  db.PrimaryKeyConstraint('device_id', 'location_id')
+                                  db.PrimaryKeyConstraint('device_profile_id', 'location_id')
                                   )
 
 
@@ -83,13 +83,8 @@ class Device(Base):
     driver = db.Column(db.String(30))
     refresh_interval = db.Column(db.Integer(), default=60)
     common_name = db.Column(db.String(255))
-    zone_mappings = db.relationship('ZoneMapping', backref='device', lazy='dynamic',
-                                    cascade="all,delete")
-    zone_mapping_rules = db.relationship('ZoneMappingRule', backref='device', lazy='dynamic',
-                                         cascade="all,delete",)
-    supplemental_device_params = db.relationship('SupplementalDeviceParam', backref='device',
-                                                 lazy='dynamic', cascade="all,delete",)
-    locations = db.relationship('Location', secondary=location_mapping_table, backref='device')
+    device_profiles = db.relationship('DeviceProfile', backref='device', lazy='dynamic',
+                                      cascade="all,delete")
     __table_args__ = (db.UniqueConstraint('hostname', name='_hostname_uc'),
                      )
 
@@ -99,6 +94,24 @@ class Device(Base):
         data.pop('password')
         data.pop('apikey')
         return data
+
+
+class DeviceProfile(Base):
+    """Device Profile model
+    The profile makes the location and zone mappings
+    This allows us to interact with devices like Panorama
+    which are management platforms that aggregate many devices
+    """
+
+    __tablename__ = 'device_profile'
+    name = db.Column(db.String(255))
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    zone_mappings = db.relationship('ZoneMapping', backref='device_profile', lazy='dynamic',
+                                    cascade="all,delete")
+    zone_mapping_rules = db.relationship('ZoneMappingRule', backref='device_profile',
+                                         lazy='dynamic', cascade="all,delete",)
+    locations = db.relationship('Location', secondary=location_mapping_table,
+                                backref='device_profile')
 
 
 class Location(Base):
@@ -111,21 +124,6 @@ class Location(Base):
     __tablename__ = 'location'
     name = db.Column(db.String(255), nullable=False)
     __table_args__ = (db.UniqueConstraint('name', name='_name_uc'),
-                     )
-
-
-class SupplementalDeviceParam(Base):
-    """Supplemental Device Param
-
-    These get passed to the orangengine driver when dispatching a new device.
-    They are the params that are specific to that driver.
-    """
-
-    __tablename__ = 'supplemental_device_param'
-    name = db.Column(db.String(255), nullable=False)
-    value = db.Column(db.String(255), nullable=False)
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
-    __table_args__ = (db.UniqueConstraint('device_id', 'name', name='_device_param_uc'),
                      )
 
 
@@ -142,10 +140,10 @@ class ZoneMapping(Base):
     """
 
     __tablename__ = 'zone_mapping'
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    device_profile_id = db.Column(db.Integer, db.ForeignKey('device_profile.id'))
     zone_name = db.Column(db.String(255), nullable=False)
     network = db.Column(CIDR, nullable=False)
-    __table_args__ = (db.UniqueConstraint('device_id', 'zone_name', 'network',
+    __table_args__ = (db.UniqueConstraint('device_profile_id', 'zone_name', 'network',
                                           name='_zone_network_mapping_uc'),
                      )
 
@@ -162,11 +160,11 @@ class ZoneMappingRule(Base):
     """
 
     __tablename__ = 'zone_mapping_rules'
-    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    device_profile_id = db.Column(db.Integer, db.ForeignKey('device_profile.id'))
     source_zone_name = db.Column(db.String(255), nullable=False)
     destination_network = db.Column(CIDR, nullable=False)
     destination_zone_name = db.Column(db.String(255), nullable=False)
-    __table_args__ = (db.UniqueConstraint('device_id', 'source_zone_name',
+    __table_args__ = (db.UniqueConstraint('device_profile_id', 'source_zone_name',
                                           'destination_network', 'destination_zone_name'),
                      )
 

@@ -5,7 +5,7 @@ from flask import jsonify, request, abort
 from api import app, db
 from api.auth import auth_token_required
 from api.models import ChangeRequest, Device, ZoneMapping, ZoneMappingRule
-from api.models import SupplementalDeviceParam, Location
+from api.models import Location, DeviceProfile
 import netaddr
 from api.async.device import refresh_device, deprovision_device
 from api.async.jobs import generate_job_id, get_job_status
@@ -104,41 +104,45 @@ def change_request(id):
 def devices():
 
     # one-to-many relationships
+    # these are our device profiles
     if request.method == 'POST' or request.method == 'PUT':
 
-        zone_mappings_list = request.json.pop('zone_mappings', [])
-        zone_mapping_rules_list = request.json.pop('zone_mapping_rules', [])
-        supplemental_device_params_list = request.json.pop('supplemental_device_params', [])
-        location_mappings_list = request.json.pop('locations', [])
+        device_profiles_list = request.json.pop('device_profiles', [])
+        print(device_profiles_list)
 
-        if zone_mappings_list:
-            request.json['zone_mappings'] = []
-            for mapping in zone_mappings_list:
-                zone_mapping = ZoneMapping(**mapping)
-                db.session.add(zone_mapping)
-                request.json['zone_mappings'].append(zone_mapping)
+        if device_profiles_list:
+            request.json['device_profiles'] = []
+            for instance in device_profiles_list:
+                
+                logger.debug(instance)
+                
+                zone_mappings_list = instance.pop('zone_mappings', [])
+                zone_mapping_rules_list = instance.pop('zone_mapping_rules', [])
+                location_mappings_list = instance.pop('locations', [])
+                
+                device_profile = DeviceProfile(**instance)
 
-        if zone_mapping_rules_list:
-            request.json['zone_mapping_rules'] = []
-            for mapping_rule in zone_mapping_rules_list:
-                zone_mapping_rule = ZoneMappingRule(**mapping_rule)
-                db.session.add(zone_mapping_rule)
-                request.json['zone_mapping_rules'].append(zone_mapping_rule)
+                if zone_mappings_list:
+                    for mapping in zone_mappings_list:
+                        zone_mapping = ZoneMapping(**mapping)
+                        db.session.add(zone_mapping)
+                        device_profile.zone_mappings.append(zone_mapping)
 
-        if supplemental_device_params_list:
-            request.json['supplemental_device_params'] = []
-            for instance in supplemental_device_params_list:
-                supplemental_device_param = SupplementalDeviceParam(**instance)
-                db.session.add(supplemental_device_param)
-                request.json['supplemental_device_params'].append(supplemental_device_param)
+                if zone_mapping_rules_list:
+                    for mapping_rule in zone_mapping_rules_list:
+                        zone_mapping_rule = ZoneMappingRule(**mapping_rule)
+                        db.session.add(zone_mapping_rule)
+                        device_profile.zone_mapping_rules.append(zone_mapping_rule)
 
-        if location_mappings_list:
-            logger.debug('getting location instances from db for mapping')
-            request.json['locations'] = []
-            for location in location_mappings_list:
-                # locations already exist, we are just addeding them to the relationship
-                _location = Location.query.filter_by(id=location).first_or_404()
-                request.json['locations'].append(_location)
+                if location_mappings_list:
+                    logger.debug('getting location instances from db for mapping')
+                    for location in location_mappings_list:
+                        # locations already exist, we are just adding them to the relationship
+                        _location = Location.query.filter_by(id=location).first_or_404()
+                        device_profile.locations.append(_location)
+
+                db.session.add(device_profile)
+                request.json['device_profiles'].append(device_profile)
 
     # request methods
     if request.method == 'POST':

@@ -110,6 +110,7 @@ jobs_redis_conection = redis.StrictRedis(host='localhost', port=6379, db=2)
 # Safe circular imports per Flask guide
 import api.errors
 import api.views
+import api.oe_views
 
 # auth blueprint
 from api.auth.views import auth_blueprint
