@@ -102,3 +102,15 @@ confirm
     </div>
   </div>
 </div>
+
+<br/>
+<br/>
+<center>
+  <form name="myForm" ng-controller="ExampleController">
+    <label>Commit:
+      <input type="checkbox" ng-model="checkboxModel.commit">
+    </label><br/>
+   </form>
+   <br/>
+   <button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Confirm</button>
+ </center>

@@ -7,7 +7,9 @@
   /** @ngInject */
   function ConfirmCtrl($scope) {
 
-
+    $scope.checkboxModel = {
+       value1 : true
+     };
 
 
   }
