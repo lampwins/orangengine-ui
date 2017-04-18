@@ -1,0 +1,79 @@
+
+
+<h2 class="ng-scope">Base Policy</h2>
+  <div ba-panel>
+      <form name="myForm" ng-controller="AppendCtrl">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th><b>Requester</b></th>
+              <th><b>Source</b></th>
+              <th><b>Destionation</b></th>
+              <th><b>Service</b></th>
+              <th><b>Action</b></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><label><input type="radio" ng-model="policy.option" value="one"></label></td>
+              <td>John Doe</td>
+              <td>127.0.0.1</td>
+              <td>127.0.0.1</td>
+              <td>service</td>
+              <td>action</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </div>
+
+<br>
+<br>
+
+<h2 class="ng-scope">Append</h2>
+
+  <div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+      <div ba-panel>
+          <div class="col-sm-4"><b>TUPLE</b></div>
+          <div class="col-sm-8">tuple</div>
+          <br>
+          <div class="col-sm-4"><b>VALUE</b></div>
+          <div class="col-sm-8">value</div>
+    </div>
+  </div>
+</div>
+<div ba-panel>
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="myForm" ng-controller="AppendCtrl">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th></th>
+              <th><b>Name</b></th>
+              <th><b>Type</b></th>
+              <th><b>Value</b></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><label><input type="radio" ng-model="append.option" value="one"></label></td>
+              <td>John Doe</td>
+              <td>unknown</td>
+              <td>unknown</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </form>
+    </div>
+  </div>
+</div>
+<center>
+  <button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Proceed</button>
+</center>
