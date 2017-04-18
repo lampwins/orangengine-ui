@@ -1,0 +1,244 @@
+<div class="widgets">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div ba-panel ba-panel-title="Form Wizard" ba-panel-class="with-scroll">
+                <ba-wizard>
+                    <ba-wizard-step title="Name" form="vm.personalInfoForm">
+                        <form name="vm.personalInfoForm" novalidate>
+                            <div class="row">
+                                  <div class="col-sm-6">
+                                    <div class="form-group has-feedback"
+                                         ng-class="{'has-error': vm.personalInfoForm.username.$invalid && (vm.personalInfoForm.username.$dirty || vm.personalInfoForm.$submitted)}">
+                                        <label for="exampleUsername1">Name</label>
+                                        <input type="text" class="form-control" id="exampleUsername1" name="name" placeholder="Name" ng-model="vm.personalInfo.username" required>
+                                        <span class="help-block error-block basic-block">Required</span>
+                                    </div>
+                                    <div class="form-group" ng-class="{'has-error': vm.personalInfoForm.email.$invalid && (vm.personalInfoForm.email.$dirty || vm.personalInfoForm.$submitted)}">
+                                        <label for="exampleInputEmail1">Notes</label>
+                                        <input type="text" class="form-control" id="exampleInputEmail1" name="notes" placeholder="Notes" ng-model="vm.personalInfo.email" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+                    <ba-wizard-step title="Source" form="vm.productInfoForm">
+                        <form name="vm.productInfoForm" novalidate>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group has-feedback"
+                                         ng-class="{'has-error': vm.productInfoForm.productName.$invalid && (vm.productInfoForm.productName.$dirty || vm.productInfoForm.$submitted)}">
+                                        <label for="productName">Zones</label>
+                                        <input type="text" class="form-control" id="zones" name="zones" placeholder="Add zone" ng-model="vm.productInfo.productName" required>
+                                        <span class="help-block error-block basic-block">Required</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                  <div align="right"><button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Add New</button></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" ng-class="{'has-error': vm.productInfoForm.productId.$invalid && (vm.productInfoForm.productId.$dirty || vm.productInfoForm.$submitted)}">
+                                        <label for="productId">Addresses</label>
+                                        <input type="text" class="form-control" id="addresses" name="addresses" placeholder="Add address" ng-model="vm.productInfo.productId" required>
+                                        <span class="help-block error-block basic-block">Required</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                  <div align="right"><button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Add New</button></div>
+                                </div>
+                            </div>
+                        </form>
+                    </ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+                    <ba-wizard-step title="Destinations"  form="vm.addressForm">
+                      <form name="vm.productInfoForm" novalidate>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group has-feedback"
+                                       ng-class="{'has-error': vm.productInfoForm.productName.$invalid && (vm.productInfoForm.productName.$dirty || vm.productInfoForm.$submitted)}">
+                                      <label for="productName">Zones</label>
+                                      <input type="text" class="form-control" id="zones" name="zones" placeholder="Add zone" ng-model="vm.productInfo.productName" required>
+                                      <span class="help-block error-block basic-block">Required</span>
+                                  </div>
+                              </div>
+                              <div class="col-md-12">
+                                <div align="right"><button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Add New</button></div>
+                              </div>
+                          </div>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group" ng-class="{'has-error': vm.productInfoForm.productId.$invalid && (vm.productInfoForm.productId.$dirty || vm.productInfoForm.$submitted)}">
+                                      <label for="productId">Addresses</label>
+                                      <input type="text" class="form-control" id="addresses" name="addresses" placeholder="Add address" ng-model="vm.productInfo.productId" required>
+                                      <span class="help-block error-block basic-block">Required</span>
+                                  </div>
+                              </div>
+                              <div class="col-md-12">
+                                <div align="right"><button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Add New</button></div>
+                              </div>
+                          </div>
+                      </form>
+                    </ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+                    <ba-wizard-step title="Services">
+                      <form name="vm.productInfoForm" novalidate>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group has-feedback"
+                                       ng-class="{'has-error': vm.productInfoForm.productName.$invalid && (vm.productInfoForm.productName.$dirty || vm.productInfoForm.$submitted)}">
+                                      <label for="productName">Services</label>
+                                      <input type="text" class="form-control" id="service" name="service" placeholder="Add service" ng-model="vm.productInfo.productName" required>
+                                      <span class="help-block error-block basic-block">Required</span>
+                                  </div>
+                              </div>
+                              <div class="col-md-12">
+                                <div align="right"><button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Add New</button></div>
+                              </div>
+                          </div>
+                      </form>
+                    </ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+                    <ba-wizard-step title="Applications">
+                      <form name="vm.productInfoForm" novalidate>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="form-group has-feedback"
+                                       ng-class="{'has-error': vm.productInfoForm.productName.$invalid && (vm.productInfoForm.productName.$dirty || vm.productInfoForm.$submitted)}">
+                                      <label for="productName">Applications</label>
+                                      <input type="text" class="form-control" id="application" name="application" placeholder="Add application" ng-model="vm.productInfo.productName" required>
+                                      <span class="help-block error-block basic-block">Required</span>
+                                  </div>
+                              </div>
+                              <div class="col-md-12">
+                                <div align="right"><button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Add New</button></div>
+                              </div>
+                          </div>
+                      </form>
+                    </ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+                    <ba-wizard-step title="Action">
+                      <form name="vm.productInfoForm" novalidate>
+                          <div class="row">
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                      <label for="productName">Action</label>
+                                      <select class="form-control" title="Action" selectpicker>
+                                          <option selected>Action 1</option>
+                                          <option>Action 2</option>
+                                          <option>Action 3</option>
+                                      </select>
+                                  </div>
+                                  <div class="form-group">
+                                        <label for="productName">Logging</label>
+                                        <select class="form-control" title="Logging" selectpicker>
+                                            <option selected>Log 1</option>
+                                            <option>Log 2</option>
+                                            <option>Log 3</option>
+                                        </select>
+                                    </div>
+                              </div>
+                          </div>
+                      </form>
+                    </ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+<ba-wizard-step title="Summary">
+  <div class="row">
+    <center><h2>Success!</h2></center>
+  </div>
+  <div class="row">
+    <div class="col-sm-2">
+      <h4 class="ng-scope">NAME</h4>
+    </div>
+    <div class="col-sm-10">
+      name
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-2">
+      <h4 class="ng-scope">NOTES</h4>
+    </div>
+    <div class="col-sm-10">
+      nLorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus aliquet lacinia risus non sagittis. Integer fringilla eu dui ac tempus. Mauris ullamcorper finibus tortor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Integer commodo eget enim ut lobortis. Integer elementum eget lacus eu rutrum. Etiam fringilla sem erat, et pharetra lacus ullamcorper vitae. Vestibulum eros nunc, convallis lobortis pellentesque et, ullamcorper vitae nibh. Nulla facilisi. Fusce sapien enim, aliquam et laoreet fermentum, consequat non est. Etiam ultricies lectus nec faucibus faucibus.
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <h4 class="ng-scope">SOURCE</h4>
+    </div>
+    <div class="col-sm-2">
+      <b>ZONES</b>
+    </div>
+    <div class="col-sm-10">
+      zones
+    </div>
+
+    <div class="col-sm-2">
+      <b>ADDRESSES</b>
+    </div>
+    <div class="col-sm-10">
+      addresses
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-sm-12">
+      <h4 class="ng-scope">DESTINATIONS</h4>
+    </div>
+    <div class="col-sm-2">
+      <b>ZONES</b>
+    </div>
+    <div class="col-sm-10">
+      zones
+    </div>
+    <div class="col-sm-2">
+      <b>ADDRESSES</b>
+    </div>
+    <div class="col-sm-10">
+      addresses
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col-sm-2">
+      <h4 class="ng-scope">SERVICES</h4>
+    </div>
+    <div class="col-sm-10">
+      services
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-2">
+      <h4 class="ng-scope">APPLICATIONS</h4>
+    </div>
+    <div class="col-sm-10">
+      applications
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-2">
+      <h4 class="ng-scope">ACTION</h4>
+    </div>
+    <div class="col-sm-10">
+      action
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-2">
+      <h4 class="ng-scope">LOGGING</h4>
+    </div>
+    <div class="col-sm-10">
+      logging
+    </div>
+  </div>
+</ba-wizard-step>
+<!-- **************************************************************************************************************************************************************************** -->
+
+                </ba-wizard>
+            </div>
+        </div>
+    </div>
+
+</div>
