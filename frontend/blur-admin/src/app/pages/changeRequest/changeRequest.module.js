@@ -6,6 +6,7 @@
     'BlurAdmin.pages.changeRequest.summary',
     'BlurAdmin.pages.changeRequest.environment',
     'BlurAdmin.pages.changeRequest.append',
+    'BlurAdmin.pages.changeRequest.tag',
     'satellizer'
   ])
       .config(routeConfig);
