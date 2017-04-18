@@ -8,6 +8,7 @@
           <th><b>Summary</b></th>
           <th><b>Source</b></th>
           <th><b>Destination</b></th>
+          <th><b>Service</b></th>
           <th><b>Actions</b></th>
         </tr>
       </thead>
@@ -16,8 +17,9 @@
           <td>{{item.requestor}}</td>
           <td>{{item.application}}</td>
           <td>{{item.summary}}</td>
-          <td>{{item.source_location}}</td>
-          <td>{{item.destination_location}}</td>
+          <td><span ng-repeat="source in item.sources">{{source.value}}<br /></span></td>
+          <td><span ng-repeat="dest in item.destinations">{{dest.value}}<br /></span></td>
+          <td><span ng-repeat="service in item.services">{{service.type === 'layer4' ? service.layer4_protocol + "/" + service.layer4_port : service.layer7_value}}<br /></span></td>
           <td>
             <button class="btn btn-success btn-xs" data-toggle="modal" ng-click="vm.go(item.id)">Review</button>
             <button class="btn btn-danger btn-xs" data-toggle="modal" ng-click="vm.cancel(item.id)">Cancel</button>
