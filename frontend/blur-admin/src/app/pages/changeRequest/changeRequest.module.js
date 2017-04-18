@@ -8,6 +8,7 @@
     'BlurAdmin.pages.changeRequest.append',
     'BlurAdmin.pages.changeRequest.tag',
     'BlurAdmin.pages.changeRequest.newPolicy',
+    'BlurAdmin.pages.changeRequest.confirm',
     'satellizer'
   ])
       .config(routeConfig);
