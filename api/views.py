@@ -5,7 +5,7 @@ from flask import jsonify, request, abort
 from api import app, db
 from api.auth import auth_token_required
 from api.models import ChangeRequest, Device, ZoneMapping, ZoneMappingRule
-from api.models import Location, DeviceProfile
+from api.models import Location, DeviceProfile, Address, Service
 import netaddr
 from api.async.device import refresh_device, deprovision_device
 from api.async.jobs import generate_job_id, get_job_status
@@ -52,6 +52,33 @@ def app_index():
 @app.route('/v1.0/change_requests/', methods=['POST', 'GET'])
 @auth_token_required
 def change_requests():
+
+    # one-to-many relationships
+    if request.method == 'POST':
+        sources_list = request.json.pop('sources', [])
+        destinations_list = request.json.pop('destinations', [])
+        services_list = request.json.pop('services', [])
+
+        if sources_list:
+            request.json['sources'] = []
+            for source in sources_list:
+                s_address = Address(**source)
+                db.session.add(s_address)
+                request.json['sources'].append(s_address)
+
+        if destinations_list:
+            request.json['destinations'] = []
+            for destination in destinations_list:
+                d_address = Address(**destination)
+                db.session.add(d_address)
+                request.json['destinations'].append(d_address)
+
+        if services_list:
+            request.json['services'] = []
+            for service in services_list:
+                service = Service(**service)
+                db.session.add(service)
+                request.json['services'].append(service)
 
     if request.method == 'POST':
         new_request = ChangeRequest(**request.json)
@@ -108,18 +135,15 @@ def devices():
     if request.method == 'POST' or request.method == 'PUT':
 
         device_profiles_list = request.json.pop('device_profiles', [])
-        print(device_profiles_list)
 
         if device_profiles_list:
             request.json['device_profiles'] = []
             for instance in device_profiles_list:
-                
-                logger.debug(instance)
-                
+
                 zone_mappings_list = instance.pop('zone_mappings', [])
                 zone_mapping_rules_list = instance.pop('zone_mapping_rules', [])
                 location_mappings_list = instance.pop('locations', [])
-                
+
                 device_profile = DeviceProfile(**instance)
 
                 if zone_mappings_list:

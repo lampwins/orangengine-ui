@@ -4,6 +4,7 @@ import jwt
 from api import db, app, bcrypt, logger
 from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import CIDR
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 # ORANGENGINE-UI MODELS
@@ -57,6 +58,50 @@ class ChangeRequest(Base):
     destination_location = db.Column(db.String(255))
     action = db.Column(db.String(255))
     status = db.Column(db.String(20), default='open')
+    sources = db.relationship('Address', backref='change_request_sources', lazy='dynamic',
+                              cascade="all,delete", foreign_keys='Address.change_request_source_id')
+    destinations = db.relationship('Address', lazy='dynamic', backref='change_request_destinations',
+                                   cascade="all,delete",
+                                   foreign_keys='Address.change_request_destination_id')
+    services = db.relationship('Service', backref='change_request', lazy='dynamic',
+                               cascade="all,delete")
+
+    def serialize(self):
+        """Override to manually include relationsips"""
+        data = super(ChangeRequest, self).serialize()
+        data.update({
+            'sources': [v.serialize() for v in self.sources],
+            'destinations': [v.serialize() for v in self.destinations],
+            'services': [v.serialize() for v in self.services],
+        })
+        return data
+
+
+class Address(Base):
+    """Address Model
+    Used in the change request source and destination fields
+    """
+
+    __tablename__ = 'address'
+    type = db.Column(db.String(20))  # dns/ipv4/ipv4_range
+    value = db.Column(db.String(255))
+    comments = db.Column(db.String(255))
+    change_request_source_id = db.Column(db.Integer, db.ForeignKey('change_request.id'))
+    change_request_destination_id = db.Column(db.Integer, db.ForeignKey('change_request.id'))
+
+
+class Service(Base):
+    """Service Model
+    Used in the change request service/application fields
+    """
+
+    __tablename__ = 'service'
+    type = db.Column(db.String(20))  # layer4/layer7
+    layer4_protocol = db.Column(db.String(20))
+    layer4_port = db.Column(db.Integer)
+    layer7_value = db.Column(db.String(50))
+    comments = db.Column(db.String(255))
+    change_request_id = db.Column(db.Integer, db.ForeignKey('change_request.id'))
 
 
 location_mapping_table = db.Table('location_mapping_table',
@@ -89,10 +134,12 @@ class Device(Base):
                      )
 
     def serialize(self):
-        """Override to leave out password and apikey as these are protected"""
+        """Override to leave out password and apikey as these are protected
+        and manually include relationsips"""
         data = super(Device, self).serialize()
         data.pop('password')
         data.pop('apikey')
+        data.update({'device_profiles': [v.serialize() for v in self.device_profiles]})
         return data
 
 
@@ -112,6 +159,16 @@ class DeviceProfile(Base):
                                          lazy='dynamic', cascade="all,delete",)
     locations = db.relationship('Location', secondary=location_mapping_table,
                                 backref='device_profile')
+
+    def serialize(self):
+        """Override to manually include relationsips"""
+        data = super(DeviceProfile, self).serialize()
+        data.update({
+            'zone_mappings': [v.serialize() for v in self.zone_mappings],
+            'zone_mapping_rules': [v.serialize() for v in self.zone_mapping_rules],
+            'locations': [v.serialize() for v in self.locations],
+        })
+        return data
 
 
 class Location(Base):
