@@ -1,6 +1,7 @@
 
 from celery import Task
 from api.async import OEDeviceFactory
+from api.async import celery_logger
 
 
 class DeviceTask(Task):
@@ -17,6 +18,6 @@ class DeviceTask(Task):
 
         Returns a singleton instance of the factory
         """
-        if self._device_factory is None:
-            self._device_factory = OEDeviceFactory()
-        return self._device_factory
+        if DeviceTask._device_factory is None:
+            DeviceTask._device_factory = OEDeviceFactory()
+        return DeviceTask._device_factory

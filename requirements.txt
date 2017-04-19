@@ -20,3 +20,4 @@ celery
 redis
 psycopg2
 netaddr
+dill

@@ -4,6 +4,7 @@ from api.models import Device as DeviceModel
 from api.async.base import DeviceTask
 from api.async import celery_logger
 from api import device_refresh_redis_conection
+import orangengine
 
 
 REDIS_DEV_REF_INTV_COUNT_PREFIX = 'dev:refresh:interval:count:'
@@ -89,3 +90,14 @@ def deprovision_device(hostname):
     celery_logger.info("Deprovisioning device %s" % hostname)
     unschedule_device_refresh(hostname)
     deprovision_device.device_factory.delete_device(hostname)
+
+@celery_app.task(base=DeviceTask)
+def get_candidate_policy(hostname, profile_name, match_criteria):
+    """Generate a candidate policy
+    """
+    device = get_candidate_policy.device_factory.get_device(hostname)
+    if isinstance(device, orangengine.drivers.PaloAltoPanoramaDriver):
+        cp = device.candidate_policy_match(match_criteria, device_group=profile_name)
+    else:
+        cp = device.candidate_policy_match(match_criteria)
+    return cp.serialize()

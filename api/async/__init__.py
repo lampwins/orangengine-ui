@@ -26,6 +26,8 @@ class OEDeviceFactory(object):
 
         self._refresh_all_device_models()
 
+        celery_logger.debug("*****************************: %s", self)
+
     @staticmethod
     def _dispatch_device(device_model):
         """use the device model to dispatch an orangengine device and store it"""
@@ -63,6 +65,7 @@ class OEDeviceFactory(object):
                 self._device_models[device_model.hostname] = device_model
 
     def _init_device(self, hostname):
+        celery_logger.debug("init %s", hostname)
         device_model = self._device_models.get(hostname)
         if device_model is None:
             device_model = self._refresh_device_model(hostname)
@@ -75,7 +78,7 @@ class OEDeviceFactory(object):
 
         Optionally (by default) refresh the device (and model) if it is not found
         """
-
+        celery_logger.debug("getting device %s", hostname)
         device = self._devices.get(hostname)
         if not device and refresh_none:
             device = self._init_device(hostname)
@@ -98,4 +101,3 @@ class OEDeviceFactory(object):
         self._devices.pop(hostname)
         if include_model:
             self._device_models.pop(hostname)
-
