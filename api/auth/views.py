@@ -2,6 +2,7 @@
 from flask import Blueprint, request, make_response, jsonify
 from flask.views import MethodView
 
+from api.auth import auth_token_required
 from api import bcrypt, db
 from api.models import User, BlacklistToken
 
@@ -12,7 +13,7 @@ class RegisterAPI(MethodView):
     """
     User Registration Resource
     """
-
+    @auth_token_required
     def post(self):
         # get the post data
         post_data = request.get_json()
@@ -45,6 +46,40 @@ class RegisterAPI(MethodView):
             responseObject = {
                 'status': 'fail',
                 'message': 'User already exists. Please Log in.',
+            }
+            return make_response(jsonify(responseObject)), 202
+
+
+class ResetAPI(MethodView):
+
+    @auth_token_required
+    def patch(self):
+        # get the post data
+        post_data = request.get_json()
+        # check if user already exists
+        user = User.query.filter_by(email=post_data.get('email')).first()
+        if user:
+            try:
+                user.change_password( request.json['password'])
+                db.session.commit()
+                # generate the auth token
+                auth_token = user.encode_auth_token(user.id)
+                responseObject = {
+                    'status': 'success',
+                    'message': 'Successfully changed password.',
+                    'auth_token': auth_token.decode()
+                }
+                return make_response(jsonify(responseObject)), 201
+            except Exception as e:
+                responseObject = {
+                    'status': 'fail',
+                    'message': 'Some error occurred. Please try again.'
+                }
+                return make_response(jsonify(responseObject)), 401
+        else:
+            responseObject = {
+                'status': 'fail',
+                'message': 'User not found',
             }
             return make_response(jsonify(responseObject)), 202
 
@@ -171,6 +206,7 @@ class LogoutAPI(MethodView):
 
 # define the API resources
 registration_view = RegisterAPI.as_view('register_api')
+reset_view = ResetAPI.as_view('reset_api')
 login_view = LoginAPI.as_view('login_api')
 user_view = UserAPI.as_view('user_api')
 logout_view = LogoutAPI.as_view('logout_api')
