@@ -1,54 +1,131 @@
 
 
-<!-- <div ba-panel ng-controller="SummaryCtrl"> -->
+<div class="ng-scope" ng-controller="SummaryCtrl as vm">
   <div class="row">
-  <div class="col-md-6 col-md-offset-3">
-  <div class="panel panel-default bootstrap-panel">
-    <div class="panel-heading">
-      <h2><font color="#666666"><center>Automation Score</center></font></h2>
+    <div class="col-md-6 col-md-offset-3">
+      <div class="panel panel-default bootstrap-panel">
+        <div class="panel-heading">
+          <h2><font color="#666666"><center>Automation Score</center></font></h2>
+        </div>
+        <div class="panel-body footer-panel">
+          <center><h1><font size=100 color="#666666">{{vm.automation_score.score}}<font color="#aaaaaa">/10</font></font></h1></center>
+          <span ng-if="vm.automation_score.help">
+            <div ng-repeat="item in vm.automation_score.help" class="error">
+              <div class="alert bg-warning">{{item}}</div>
+            </div>
+          </span>
+        </div>
+      </div>
     </div>
-    <div class="panel-body footer-panel">
-      <center><h1><font size=100 color="#666666">9<font color="#aaaaaa">/10</font></font></h1></center>
+  </div>
+
+  <div ba-panel ba-panel-title="Request Details">
+    <div class="horizontal-scroll">
+      <p><b>Requestor:</b> {{vm.change_request.requestor}}</p>
+      <p><b>Application:</b> {{vm.change_request.application}}</p>
+      <p><b>Summary:</b> {{vm.change_request.summary}}</p>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th><b>Source Location</b></th>
+            <th><b>Source</b></th>
+            <th><b>Destination Location</b></th>
+            <th><b>Destination</b></th>
+            <th><b>Service</b></th>
+            <th><b>Action</b></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{vm.change_request.source_location}}</td>
+            <td><span ng-repeat="source in vm.change_request.sources">{{source.value}}<br /></span></td>
+            <td>{{vm.change_request.destination_location}}</td>
+            <td><span ng-repeat="dest in vm.change_request.destinations">{{dest.value}}<br /></span></td>
+            <td><span ng-repeat="service in vm.change_request.services">{{service.type === 'layer4' ? service.layer4_protocol + "/" + service.layer4_port : service.layer7_value}}<br /></span></td>
+            <td>{{vm.change_request.action}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+
+  <div ba-panel ba-panel-title="Environment">
+    <div class="col-sm-6 col-md-offset-2">
+      <form class="form-horizontal">
+        <div class="form-group">
+          <label for="device" class="col-sm-4 control-label">Device</label>
+          <div class="col-sm-8">
+            <div class="form-group has-feedback"
+                  ng-class="{'has-error': vm.environmentForm.device.$invalid && (vm.environmentForm.device.$dirty || vm.environmentForm.$submitted)}">
+                <ui-select ng-model="vm.environmentForm.device"
+                        class="btn-group bootstrap-select form-control"
+                        ng-disabled="false"
+                        append-to-body="true"
+                        search-enabled="false">
+                    <ui-select-match placeholder="Select Device">
+                        <span> {{$select.selected.common_name}}</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="deviceItem in vm.environmentForm.allDevices | filter: $select.search">
+                        <span ng-bind-html="deviceItem.common_name"></span>
+                    </ui-select-choices>
+                </ui-select>
+                <span class="help-block error-block basic-block">Device to apply change to</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="deviceProfile" class="col-sm-4 control-label">Device Profile</label>
+          <div class="col-sm-8">
+            <div class="form-group has-feedback"
+                  ng-class="{'has-error': vm.environmentForm.deviceProfile.$invalid && (vm.environmentForm.deviceProfile.$dirty || vm.environmentForm.$submitted)}">
+                <ui-select ng-model="vm.environmentForm.deviceProfile"
+                        class="btn-group bootstrap-select form-control"
+                        ng-disabled="false"
+                        append-to-body="true"
+                        search-enabled="false"
+                        on-select="vm.updateCandidatePolicy($item, $model)">
+                    <ui-select-match placeholder="Select Device Profile">
+                        <span> {{$select.selected.name}}</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="deviceProfileItem in vm.environmentForm.device.device_profiles | filter: $select.search">
+                        <span ng-bind-html="deviceProfileItem.name"></span>
+                    </ui-select-choices>
+                </ui-select>
+                <span class="help-block error-block basic-block">Device Profile</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="method" class="col-sm-4 control-label">Automation Method</label>
+          <div class="col-sm-8">
+            <div class="form-group has-feedback"
+                  ng-class="{'has-error': vm.environmentForm.method.$invalid && (vm.environmentForm.method.$dirty || vm.environmentForm.$submitted)}">
+                <ui-select ng-model="vm.environmentForm.method"
+                        class="btn-group bootstrap-select form-control"
+                        ng-disabled="false"
+                        append-to-body="true"
+                        search-enabled="false">
+                    <ui-select-match placeholder="Select Automation Method">
+                        <span> {{$select.selected}}</span>
+                    </ui-select-match>
+                    <ui-select-choices repeat="methodItem in vm.environmentForm.allMethods | filter: $select.search">
+                        <span ng-bind-html="methodItem"></span>
+                    </ui-select-choices>
+                </ui-select>
+                <span class="help-block error-block basic-block">Automation Method</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <center>
+            <button class="btn btn-success" type="submit" data-toggle="modal" ng-click="vm.proceed()">Proceed</button>
+            <button class="btn btn-danger" data-toggle="modal" ng-click="vm.cancel()">Manual Close</button>
+          </center>
+        </div>
+      </form>
     </div>
   </div>
 
 </div>
-</div>
-
-<h2 class="ng-scope">Request Details</h2>
-<div ba-panel>
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th><b>Requester</b></th>
-          <th><b>Application</b></th>
-          <th><b>Source</b></th>
-          <th><b>Destination</b></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>john doe</td>
-          <td>egwteg</td>
-          <td>127.0.0.1</td>
-          <td>127.0.0.1</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-
-<h2 class="ng-scope">Summary</h2>
-  <div ba-panel>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer et enim sed turpis laoreet pretium eu vitae quam. Ut mauris elit, euismod eu viverra in, auctor at felis. Nunc vehicula mattis dolor ullamcorper molestie. Nam eleifend scelerisque neque tempor semper. Nam dolor massa, sodales ac neque et, congue vulputate sem. Etiam in ante convallis, egestas est a, suscipit nisl. Proin a est eget lectus eleifend ultrices ut id neque. In tristique semper velit a fringilla.
-</div>
-
-<center>
-  <button class="btn btn-success" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Proceed</button>
-  <button class="btn btn-danger" data-toggle="modal" ng-click="go('/changeRequest/239/environment')">Manual Close</button>
-</center>
-
-<!-- </div> -->

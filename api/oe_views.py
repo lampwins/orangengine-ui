@@ -90,7 +90,7 @@ def get_score(id):
         }
         device_profiles_data.append(data)
 
-    return data_results(device_profiles_data)
+    return data_results({'score': score, 'environment': device_profiles_data})
 
 @app.route('/v1.0/oe/candidate_policy/', methods=['POST'])
 @auth_token_required
@@ -101,6 +101,7 @@ def get_candidate_policy():
     hostname = request.json['device']['hostname']
     profile_name = request.json['profile']['name']
     match_criteria = request.json['match_criteria']
+    logger.debug(match_criteria)
     candidate_policy_json = device_candidate_policy.delay(hostname, profile_name, match_criteria).get()
 
     return data_results(candidate_policy_json)

@@ -11,7 +11,7 @@
         url: '/:id/summary',
         templateUrl: 'app/pages/changeRequest/summary/summary.html',
         title: 'Summary',
-        controller: "SummaryCtrl"
+        //controller: "SummaryCtrl"
       });
   }
 })();

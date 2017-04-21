@@ -95,6 +95,7 @@ def deprovision_device(hostname):
 def get_candidate_policy(hostname, profile_name, match_criteria):
     """Generate a candidate policy
     """
+    celery_logger.debug("get_candidate_policy: match_criteria: %s", match_criteria)
     device = get_candidate_policy.device_factory.get_device(hostname)
     if isinstance(device, orangengine.drivers.PaloAltoPanoramaDriver):
         cp = device.candidate_policy_match(match_criteria, device_group=profile_name)
