@@ -244,6 +244,12 @@ class User(Base):
         ).decode()
         self.admin = admin
 
+    def change_password(self, password):
+        logger.debug("changing password for %s" % self.email )
+        self.password = bcrypt.generate_password_hash(
+            password, app.config.get('BCRYPT_LOG_ROUNDS')
+        ).decode()
+
     def encode_auth_token(self, user_id):
         """
         Generates the Auth Token

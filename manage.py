@@ -8,6 +8,10 @@ import coverage
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
+from api import models
+from api.models import User
+from api.auth import views
+
 COV = coverage.coverage(
     branch=True,
     include='project/*',
@@ -68,6 +72,27 @@ def drop_db():
     """Drops the db tables."""
     db.reflect()
     db.drop_all()
+
+
+@manager.command
+def register_first():
+    """Register new user"""
+    email = raw_input("Please enter email: ")
+    password = getpass.getpass("Enter Password:")
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        try:
+            user = User(
+                    email=email,
+                    password=password
+                    )
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+                responseObject = {
+                    'status': 'fail',
+                    'message': 'Some error occurred. Please try again.'
+                }
 
 
 if __name__ == '__main__':
