@@ -70,6 +70,8 @@ def get_score(id):
                     if s_addr.type == 'ipv4_range':
                         value = IPRange(s_addr.value.split('-')[0],
                                         s_addr.value.split('-')[1])
+                    elif s_addr.value == 'any':
+                        value = IPNetwork('0.0.0.0/0')
                     else:
                         value = IPNetwork(s_addr.value)
 
