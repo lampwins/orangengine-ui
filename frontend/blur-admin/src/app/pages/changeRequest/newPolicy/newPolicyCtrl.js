@@ -20,7 +20,7 @@
       any: 'any',
       ipv4: 'ip-netmask',
       range: 'ip-range',
-      dns: 'dns'
+      dns: 'fqdn'
     };
     var genericAddressTypeMap = {
       any: 'any',
@@ -129,17 +129,17 @@
     vm.serviceFormData.linked_services = [];
     vm.serviceFormData.new_services = [];
     for (var key in candidate_policy.linked_objects.applications){
-      var obj = candidate_policy.linked_objects.destination_addresses[key];
+      var obj = candidate_policy.linked_objects.applications[key];
       if (obj) {
         // linked
-        vm.serviceFormData.linked_destinations.push(obj);
+        vm.serviceFormData.linked_applications.push(obj);
       }
     }
     for (var key in candidate_policy.linked_objects.services){
       var obj = candidate_policy.linked_objects.services[key];
       if (obj) {
         // linked
-        vm.serviceFormData.linked_destinations.push(obj);
+        vm.serviceFormData.linked_services.push(obj);
       } else {
         // new
         var new_obj = {
@@ -253,6 +253,8 @@
       candidate_policy.method = 'NEW_POLICY';
 
       candidatePolicyService.updateCandidatePolicy(candidate_policy);
+
+      console.log(candidate_policy);
 
       $location.path('changeRequest/' + $stateParams.id + '/confirm');
 

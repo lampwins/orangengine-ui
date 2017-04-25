@@ -18,6 +18,10 @@
       return _device;
     }
 
+    this.getProfile = function() {
+      return _profile;
+    }
+
     this.getCandidatePolicy = function(device, profile, matchCriteria) {
       if (_candidatePolicy === undefined) {
         return $http({

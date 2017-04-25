@@ -63,11 +63,7 @@
       var data = {};
       var envPos = vm.automation_score.environment.map(function(x) {return x.device; }).indexOf(device);
       var envObject = vm.automation_score.environment[envPos];
-      //console.log(envPos);
-      //console.log(envObject);
 
-      console.debug(vm.change_request.services.filter(function(x) {return x.type==='layer4';}));
-      
       data.source_zones = envObject.zones.source;
       data.destination_zones = envObject.zones.destination;
       data.source_addresses = vm.change_request.sources.map(function(x) {return x.value;});
