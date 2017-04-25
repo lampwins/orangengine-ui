@@ -102,3 +102,19 @@ def get_candidate_policy(hostname, profile_name, match_criteria):
     else:
         cp = device.candidate_policy_match(match_criteria)
     return cp.serialize()
+
+@celery_app.task(base=DeviceTask)
+def apply_candidate_policy(hostname, candidate_policy, commit=False):
+    """Apply the candidate policy to the device
+    """
+    celery_logger.debug("apply_candidate_policy: applying candidate policy: %s", candidate_policy)
+    device = apply_candidate_policy.device_factory.get_device(hostname)
+    passed = False
+    #try:
+    #    device.apply_candidate_policy(candidate_policy, commit)
+    #    passed = True
+    #except Exception as e:
+    #    celery_logger.error(e)
+    device.apply_candidate_policy(candidate_policy, commit)
+
+    return passed

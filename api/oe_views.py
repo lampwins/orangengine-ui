@@ -8,6 +8,8 @@ from api.views import data_results
 from orangengine.utils import is_ipv4, missing_cidr
 from netaddr import IPNetwork, IPAddress, IPRange
 from api.async.device import get_candidate_policy as device_candidate_policy
+from api.async.device import apply_candidate_policy as device_apply_candidate_policy
+from api.async.jobs import generate_job_id
 from flask import jsonify, request, abort
 
 logger = logging.getLogger(__name__)
@@ -107,3 +109,19 @@ def get_candidate_policy():
     candidate_policy_json = device_candidate_policy.delay(hostname, profile_name, match_criteria).get()
 
     return data_results(candidate_policy_json)
+
+@app.route('/v1.0/oe/apply_candidate_policy/', methods=['POST'])
+@auth_token_required
+def apply_candidate_policy():
+    """Apply the candidate poliy to the device
+    """
+
+    hostname = request.json['device']['hostname']
+    candidate_policy = request.json['candidate_policy']
+    commit = request.json['commit']
+
+    task_id = generate_job_id()
+    logger.debug("apply_candidate_policy: candidate policy: %s", candidate_policy)
+    device_apply_candidate_policy.apply_async((hostname, candidate_policy, commit), task_id=str(task_id))
+
+    return data_results({'job_id': task_id})
